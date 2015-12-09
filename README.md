@@ -12,7 +12,7 @@ This is a Java library for building circuits for preprocessing zk-SNARKs. The li
 
 ### Installation Instructions
 - Install the prerequisites of jsnak and libsnark. Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next step.
-- Run `$ git clone https://github.com/akosba/jsnark.git`
+- Run `$ git clone --recursive https://github.com/akosba/jsnark.git`
 - In the cloned repository run:
 
 	`$ cd jsnark/libsnark`
