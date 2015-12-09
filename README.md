@@ -6,12 +6,30 @@ This is a Java library for building circuits for preprocessing zk-SNARKs. The li
 
 ### Prerequisites
 
+- Libsnark prerequisites.
 - JDK 8. 
 - Junit 4.
-- Libsnark's prerequisites.
+
+For Ubuntu 14.04, the following can be done to install the above:
+
+- To install libsnark prerequisites: `$ sudo apt-get install build-essential git libgmp3-dev libprocps3-dev libgtest-dev python-markdown libboost-all-dev libssl-dev`
+
+- To install JDK 8: 
+
+	`$ sudo add-apt-repository ppa:webupd8team/java`
+
+	`$ sudo apt-get update`
+
+	`$ sudo apt-get install oracle-java8-installer`
+
+Verify the installed version by `java -version`. In case it is not 1.8 or later, try `sudo update-java-alternatives -s java-8-oracle`
+
+- To install Junit4: `sudo apt-get install junit4`
 
 ### Installation Instructions
-- Install the prerequisites of jsnak and libsnark. Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next step.
+
+- Install the prerequisites of jsnak and libsnark.
+- Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next step.
 - Run `$ git clone --recursive https://github.com/akosba/jsnark.git`
 - In the cloned repository run:
 
