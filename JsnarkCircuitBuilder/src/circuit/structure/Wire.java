@@ -1,0 +1,463 @@
+package circuit.structure;
+
+import java.math.BigInteger;
+
+import circuit.eval.Instruction;
+import circuit.operations.primitive.ConstMulBasicOp;
+import circuit.operations.primitive.MulBasicOp;
+import circuit.operations.primitive.NonZeroCheckBasicOp;
+import circuit.operations.primitive.ORBasicOp;
+import circuit.operations.primitive.PackBasicOp;
+import circuit.operations.primitive.SplitBasicOp;
+import circuit.operations.primitive.XorBasicOp;
+
+public class Wire {
+
+	protected int wireId = -1;
+	protected CircuitGenerator generator;
+
+	public Wire(int wireId) {
+		this.generator = CircuitGenerator.getActiveCircuitGenerator();
+		if (wireId < 0) {
+			throw new IllegalArgumentException("wire id cannot be negative");
+		}
+		this.wireId = wireId;
+	}
+
+	protected Wire(WireArray bits) {
+		this.generator = CircuitGenerator.getActiveCircuitGenerator();
+		setBits(bits);
+	}
+
+	public String toString() {
+		return wireId + "";
+	}
+
+	public int getWireId() {
+		return wireId;
+	}
+
+	WireArray getBitWires() {
+		return null;
+	}
+
+	void setBits(WireArray bits) {
+		System.out.println(
+				"Warning --  you are trying to set bits for either a constant or a bit wire." + " -- Action Ignored");
+	}
+
+	public Wire mul(BigInteger b, String... desc) {
+		packIfNeeded(desc);
+		if (b.equals(BigInteger.ONE))
+			return this;
+		Wire out = new LinearCombinationWire(generator.currentWireId++);
+		Instruction op = new ConstMulBasicOp(this, out, b, desc);
+		generator.addToEvaluationQueue(op);
+		return out;
+	}
+
+	public Wire mul(long l, String... desc) {
+		return mul(new BigInteger(l + ""), desc);
+	}
+
+	public Wire mul(long base, int exp, String... desc) {
+		BigInteger b = new BigInteger(base + "");
+		b = b.pow(exp);
+		return mul(b, desc);
+	}
+
+	public Wire mul(Wire w, String... desc) {
+		if (w instanceof ConstantWire) {
+			return this.mul(((ConstantWire) w).getConstant(), desc);
+		} else {
+			packIfNeeded(desc);
+			w.packIfNeeded(desc);
+			Wire output = new VariableWire(generator.currentWireId++);
+			Instruction op = new MulBasicOp(this, w, output, desc);
+			generator.addToEvaluationQueue(op);
+			return output;
+		}
+	}
+
+	public Wire add(Wire w, String... desc) {
+		packIfNeeded(desc);
+		w.packIfNeeded(desc);
+		return new WireArray(new Wire[] { this, w }).sumAllElements(desc);
+	}
+
+	public Wire add(long v, String... desc) {
+		return add(generator.defineConstantWire(v, desc), desc);
+	}
+
+	public Wire add(BigInteger b, String... desc) {
+		return add(generator.defineConstantWire(b, desc), desc);
+
+	}
+
+	public Wire sub(Wire w, String... desc) {
+		w.packIfNeeded(desc);
+		Wire neg = w.mul(-1, desc);
+		return add(neg, desc);
+	}
+
+	public Wire sub(long v, String... desc) {
+		return sub(generator.defineConstantWire(v, desc), desc);
+
+	}
+
+	public Wire sub(BigInteger b, String... desc) {
+		return sub(generator.defineConstantWire(b, desc), desc);
+	}
+
+	public Wire checkNonZero(String... desc) {
+		packIfNeeded(desc);
+		/**
+		 * this wire is not currently used for anything - It's for compatibility
+		 * with earlier experimental versions when the target was Pinocchio
+		 **/
+		Wire out1 = new Wire(generator.currentWireId++);
+		Wire out2 = new VariableBitWire(generator.currentWireId++);
+		Instruction op = new NonZeroCheckBasicOp(this, out1, out2, desc);
+		generator.addToEvaluationQueue(op);
+		return out2;
+	}
+
+	public Wire invAsBit(String... desc) {
+		packIfNeeded(desc); // just a precaution .. should not be really needed
+		Wire w1 = this.mul(-1, desc);
+		Wire out = generator.oneWire.add(w1, desc);
+		return out;
+	}
+
+	public Wire or(Wire w, String... desc) {
+		if (w instanceof ConstantWire) {
+			return w.or(this, desc);
+		} else {
+			packIfNeeded(desc); // just a precaution .. should not be really
+								// needed
+			Wire out = new VariableWire(generator.currentWireId++);
+			Instruction op = new ORBasicOp(this, w, out, desc);
+			generator.addToEvaluationQueue(op);
+			return out;
+		}
+	}
+
+	/**
+	 * Assumes a binary wire
+	 * 
+	 * @param w
+	 * @param desc
+	 * @return
+	 */
+	public Wire xor(Wire w, String... desc) {
+		if (w instanceof ConstantWire) {
+			return w.xor(this, desc);
+		} else {
+			packIfNeeded(desc); // just a precaution .. should not be really
+								// needed
+			Wire out = new VariableWire(generator.currentWireId++);
+			Instruction op = new XorBasicOp(this, w, out, desc);
+			generator.addToEvaluationQueue(op);
+			return out;
+		}
+	}
+
+	public Wire and(Wire w, String... desc) {
+		return mul(w, desc);
+	}
+
+	public WireArray getBitWires(int bitwidth, String... desc) {
+		WireArray bitWires = getBitWires();
+		if (bitWires == null) {
+			bitWires = forceSplit(bitwidth, desc);
+			setBits(bitWires);
+			return bitWires;
+		} else {
+			return bitWires.adjustLength(bitwidth);
+		}
+	}
+
+	protected WireArray forceSplit(int bitwidth, String... desc) {
+		Wire[] ws = new VariableBitWire[bitwidth];
+		for (int i = 0; i < bitwidth; i++) {
+			ws[i] = new VariableBitWire(generator.currentWireId++);
+		}
+		Instruction op = new SplitBasicOp(this, ws, desc);
+		generator.addToEvaluationQueue(op);
+		WireArray bitWires = new WireArray(ws);
+		return bitWires;
+	}
+
+	public void restrictBitLength(int bitWidth, String... desc) {
+		WireArray bitWires = getBitWires();
+		if (bitWires == null) {
+			getBitWires(bitWidth, desc);
+		} else {
+			if (bitWires.size() > bitWidth) {
+				bitWires = forceSplit(bitWidth, desc);
+				setBits(bitWires);
+			} else {
+				// nothing to be done.
+			}
+		}
+	}
+
+	public Wire xorBitwise(Wire w, int numBits, String... desc) {
+		WireArray bits1 = getBitWires(numBits, desc);
+		WireArray bits2 = w.getBitWires(numBits, desc);
+		WireArray result = bits1.xorWireArray(bits2, numBits, desc);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	public Wire xorBitwise(long v, int numBits, String... desc) {
+		return xorBitwise(generator.defineConstantWire(v, desc), numBits, desc);
+	}
+
+	public Wire xorBitwise(BigInteger b, int numBits, String... desc) {
+		return xorBitwise(generator.defineConstantWire(b, desc), numBits, desc);
+	}
+
+	public Wire andBitwise(Wire w, int numBits, String... desc) {
+		WireArray bits1 = getBitWires(numBits, desc);
+		WireArray bits2 = w.getBitWires(numBits, desc);
+		WireArray result = bits1.andWireArray(bits2, numBits, desc);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	public Wire andBitwise(long v, int numBits, String... desc) {
+		return andBitwise(generator.defineConstantWire(v, desc), numBits, desc);
+	}
+
+	public Wire andBitwise(BigInteger b, int numBits, String... desc) {
+		return andBitwise(generator.defineConstantWire(b, desc), numBits, desc);
+	}
+
+	public Wire orBitwise(Wire w, int numBits, String... desc) {
+		WireArray bits1 = getBitWires(numBits, desc);
+		WireArray bits2 = w.getBitWires(numBits, desc);
+		WireArray result = bits1.orWireArray(bits2, numBits, desc);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	public Wire orBitwise(long v, int numBits, String... desc) {
+		return orBitwise(generator.defineConstantWire(v, desc), numBits, desc);
+	}
+
+	public Wire orBitwise(BigInteger b, int numBits, String... desc) {
+		return orBitwise(generator.defineConstantWire(b, desc), numBits, desc);
+	}
+
+	public Wire isEqualTo(Wire w, String... desc) {
+		packIfNeeded(desc);
+		w.packIfNeeded(desc);
+		Wire s = sub(w, desc);
+		return s.checkNonZero(desc).invAsBit(desc);
+	}
+
+	public Wire isEqualTo(BigInteger b, String... desc) {
+		return isEqualTo(generator.defineConstantWire(b, desc));
+	}
+
+	public Wire isEqualTo(long v, String... desc) {
+		return isEqualTo(generator.defineConstantWire(v, desc));
+	}
+
+	public Wire isLessThanOrEqual(Wire w, int bitwidth, String... desc) {
+		packIfNeeded(desc);
+		w.packIfNeeded(desc);
+		BigInteger p = new BigInteger("2").pow(bitwidth);
+		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire sum = pWire.add(w, desc).sub(this, desc);
+		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
+		return bitWires.get(bitwidth);
+	}
+
+	public Wire isLessThanOrEqual(long v, int bitwidth, String... desc) {
+		return isLessThanOrEqual(generator.defineConstantWire(v, desc), bitwidth, desc);
+	}
+
+	public Wire isLessThanOrEqual(BigInteger b, int bitwidth, String... desc) {
+		return isLessThanOrEqual(generator.defineConstantWire(b, desc), bitwidth, desc);
+	}
+
+	public Wire isLessThan(Wire w, int bitwidth, String... desc) {
+		packIfNeeded(desc);
+		w.packIfNeeded(desc);
+		BigInteger p = new BigInteger("2").pow(bitwidth);
+		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire sum = pWire.add(this, desc).sub(w, desc);
+		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
+		return bitWires.get(bitwidth).invAsBit(desc);
+	}
+
+	public Wire isLessThan(long v, int bitwidth, String... desc) {
+		return isLessThanOrEqual(generator.defineConstantWire(v, desc), bitwidth, desc);
+
+	}
+
+	public Wire isLessThan(BigInteger b, int bitwidth, String... desc) {
+		return isLessThanOrEqual(generator.defineConstantWire(b, desc), bitwidth, desc);
+	}
+
+	public Wire isGreaterThanOrEqual(Wire w, int bitwidth, String... desc) {
+		packIfNeeded(desc);
+		w.packIfNeeded(desc);
+		BigInteger p = new BigInteger("2").pow(bitwidth);
+		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire sum = pWire.add(this, desc).sub(w, desc);
+		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
+		return bitWires.get(bitwidth);
+	}
+
+	public Wire isGreaterThanOrEqual(long v, int bitwidth, String... desc) {
+		return isGreaterThanOrEqual(generator.defineConstantWire(v, desc), bitwidth, desc);
+	}
+
+	public Wire isGreaterThanOrEqual(BigInteger b, int bitwidth, String... desc) {
+		return isGreaterThanOrEqual(generator.defineConstantWire(b, desc), bitwidth, desc);
+	}
+
+	public Wire isGreaterThan(Wire w, int bitwidth, String... desc) {
+		packIfNeeded(desc);
+		w.packIfNeeded(desc);
+		BigInteger p = new BigInteger("2").pow(bitwidth);
+		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire sum = pWire.add(w, desc).sub(this, desc);
+		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
+		return bitWires.get(bitwidth).invAsBit(desc);
+	}
+
+	public Wire isGreaterThan(long v, int bitwidth, String... desc) {
+		return isGreaterThan(generator.defineConstantWire(v, desc), bitwidth, desc);
+	}
+
+	public Wire isGreaterThan(BigInteger b, int bitwidth, String... desc) {
+		return isGreaterThan(generator.defineConstantWire(b, desc), bitwidth, desc);
+	}
+
+	public Wire rotateLeft(int numBits, int s, String... desc) {
+		WireArray bits = getBitWires(numBits, desc);
+		Wire[] rotatedBits = new Wire[numBits];
+		for (int i = 0; i < numBits; i++) {
+			if (i < s)
+				rotatedBits[i] = bits.get(i + (numBits - s));
+			else
+				rotatedBits[i] = bits.get(i - s);
+		}
+		WireArray result = new WireArray(rotatedBits);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	public Wire rotateRight(int numBits, int s, String... desc) {
+		WireArray bits = getBitWires(numBits, desc);
+		Wire[] rotatedBits = new Wire[numBits];
+		for (int i = 0; i < numBits; i++) {
+			if (i >= numBits - s)
+				rotatedBits[i] = bits.get(i - (numBits - s));
+			else
+				rotatedBits[i] = bits.get(i + s);
+		}
+		WireArray result = new WireArray(rotatedBits);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	public Wire shiftLeft(int numBits, int s, String... desc) {
+		WireArray bits = getBitWires(numBits, desc);
+		Wire[] shiftedBits = new Wire[numBits];
+		for (int i = 0; i < numBits; i++) {
+			if (i < s)
+				shiftedBits[i] = generator.zeroWire;
+			else
+				shiftedBits[i] = bits.get(i - s);
+		}
+		WireArray result = new WireArray(shiftedBits);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	public Wire shiftRight(int numBits, int s, String... desc) {
+		WireArray bits = getBitWires(numBits, desc);
+		Wire[] shiftedBits = new Wire[numBits];
+		for (int i = 0; i < numBits; i++) {
+			if (i >= numBits - s)
+				shiftedBits[i] = generator.zeroWire;
+			else
+				shiftedBits[i] = bits.get(i + s);
+		}
+		WireArray result = new WireArray(shiftedBits);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	public Wire invBits(int bitwidth, String... desc) {
+		Wire[] bits = getBitWires(bitwidth, desc).asArray();
+		Wire[] resultBits = new Wire[bits.length];
+		for (int i = 0; i < resultBits.length; i++) {
+			resultBits[i] = bits[i].invAsBit(desc);
+		}
+		return new VariableWire(new WireArray(resultBits));
+	}
+
+	public Wire trimBits(int currentNumOfBits, int desiredNumofBits, String... desc) {
+		WireArray bitWires = getBitWires(currentNumOfBits, desc);
+		WireArray result = bitWires.adjustLength(desiredNumofBits);
+		BigInteger v = result.checkIfConstantBits(desc);
+		if (v == null) {
+			return new VariableWire(result);
+		} else {
+			return generator.defineConstantWire(v);
+		}
+	}
+
+	protected void packIfNeeded(String... desc) {
+		if (wireId == -1) {
+			pack();
+		}
+	}
+
+	protected void pack(String... desc) {
+		if (wireId == -1) {
+			WireArray bits = getBitWires();
+			if (bits == null) {
+				throw new RuntimeException("A Pack operation is tried on a wire that has no bits.");
+			}
+			wireId = generator.currentWireId++;
+			Instruction op = new PackBasicOp(bits.array, this, desc);
+			generator.addToEvaluationQueue(op);
+		}
+	}
+
+}
