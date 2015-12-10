@@ -74,10 +74,8 @@ public class SubsetSumHashGadget extends Gadget {
 			for (int i = 0; i < DIMENSION; i++) {
 				Wire[] bits = outDigest[i].getBitWires(Config.LOG2_FIELD_PRIME).asArray();
 				for (int j = 0; j < bits.length; j++) {
-					outWires[j + i * 256] = bits[j];
+					outWires[j + i * Config.LOG2_FIELD_PRIME] = bits[j];
 				}
-				outWires[bits.length + i * 256] = generator.getZeroWire();
-				outWires[bits.length + i * 256 + 1] = generator.getZeroWire();
 			}
 		}
 	}

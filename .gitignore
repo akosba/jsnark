@@ -4,3 +4,6 @@
 *.d
 *.*~
 bin
+.project
+.settings
+.classpath
