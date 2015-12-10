@@ -86,11 +86,11 @@ public class Wire {
 	}
 
 	public Wire add(long v, String... desc) {
-		return add(generator.defineConstantWire(v, desc), desc);
+		return add(generator.createConstantWire(v, desc), desc);
 	}
 
 	public Wire add(BigInteger b, String... desc) {
-		return add(generator.defineConstantWire(b, desc), desc);
+		return add(generator.createConstantWire(b, desc), desc);
 
 	}
 
@@ -101,12 +101,12 @@ public class Wire {
 	}
 
 	public Wire sub(long v, String... desc) {
-		return sub(generator.defineConstantWire(v, desc), desc);
+		return sub(generator.createConstantWire(v, desc), desc);
 
 	}
 
 	public Wire sub(BigInteger b, String... desc) {
-		return sub(generator.defineConstantWire(b, desc), desc);
+		return sub(generator.createConstantWire(b, desc), desc);
 	}
 
 	public Wire checkNonZero(String... desc) {
@@ -210,16 +210,16 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 
 	public Wire xorBitwise(long v, int numBits, String... desc) {
-		return xorBitwise(generator.defineConstantWire(v, desc), numBits, desc);
+		return xorBitwise(generator.createConstantWire(v, desc), numBits, desc);
 	}
 
 	public Wire xorBitwise(BigInteger b, int numBits, String... desc) {
-		return xorBitwise(generator.defineConstantWire(b, desc), numBits, desc);
+		return xorBitwise(generator.createConstantWire(b, desc), numBits, desc);
 	}
 
 	public Wire andBitwise(Wire w, int numBits, String... desc) {
@@ -230,16 +230,16 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 
 	public Wire andBitwise(long v, int numBits, String... desc) {
-		return andBitwise(generator.defineConstantWire(v, desc), numBits, desc);
+		return andBitwise(generator.createConstantWire(v, desc), numBits, desc);
 	}
 
 	public Wire andBitwise(BigInteger b, int numBits, String... desc) {
-		return andBitwise(generator.defineConstantWire(b, desc), numBits, desc);
+		return andBitwise(generator.createConstantWire(b, desc), numBits, desc);
 	}
 
 	public Wire orBitwise(Wire w, int numBits, String... desc) {
@@ -250,16 +250,16 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 
 	public Wire orBitwise(long v, int numBits, String... desc) {
-		return orBitwise(generator.defineConstantWire(v, desc), numBits, desc);
+		return orBitwise(generator.createConstantWire(v, desc), numBits, desc);
 	}
 
 	public Wire orBitwise(BigInteger b, int numBits, String... desc) {
-		return orBitwise(generator.defineConstantWire(b, desc), numBits, desc);
+		return orBitwise(generator.createConstantWire(b, desc), numBits, desc);
 	}
 
 	public Wire isEqualTo(Wire w, String... desc) {
@@ -270,84 +270,84 @@ public class Wire {
 	}
 
 	public Wire isEqualTo(BigInteger b, String... desc) {
-		return isEqualTo(generator.defineConstantWire(b, desc));
+		return isEqualTo(generator.createConstantWire(b, desc));
 	}
 
 	public Wire isEqualTo(long v, String... desc) {
-		return isEqualTo(generator.defineConstantWire(v, desc));
+		return isEqualTo(generator.createConstantWire(v, desc));
 	}
 
 	public Wire isLessThanOrEqual(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
 		BigInteger p = new BigInteger("2").pow(bitwidth);
-		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire pWire = generator.createConstantWire(p, desc);
 		Wire sum = pWire.add(w, desc).sub(this, desc);
 		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
 		return bitWires.get(bitwidth);
 	}
 
 	public Wire isLessThanOrEqual(long v, int bitwidth, String... desc) {
-		return isLessThanOrEqual(generator.defineConstantWire(v, desc), bitwidth, desc);
+		return isLessThanOrEqual(generator.createConstantWire(v, desc), bitwidth, desc);
 	}
 
 	public Wire isLessThanOrEqual(BigInteger b, int bitwidth, String... desc) {
-		return isLessThanOrEqual(generator.defineConstantWire(b, desc), bitwidth, desc);
+		return isLessThanOrEqual(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
 	public Wire isLessThan(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
 		BigInteger p = new BigInteger("2").pow(bitwidth);
-		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire pWire = generator.createConstantWire(p, desc);
 		Wire sum = pWire.add(this, desc).sub(w, desc);
 		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
 		return bitWires.get(bitwidth).invAsBit(desc);
 	}
 
 	public Wire isLessThan(long v, int bitwidth, String... desc) {
-		return isLessThanOrEqual(generator.defineConstantWire(v, desc), bitwidth, desc);
+		return isLessThanOrEqual(generator.createConstantWire(v, desc), bitwidth, desc);
 
 	}
 
 	public Wire isLessThan(BigInteger b, int bitwidth, String... desc) {
-		return isLessThanOrEqual(generator.defineConstantWire(b, desc), bitwidth, desc);
+		return isLessThanOrEqual(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
 	public Wire isGreaterThanOrEqual(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
 		BigInteger p = new BigInteger("2").pow(bitwidth);
-		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire pWire = generator.createConstantWire(p, desc);
 		Wire sum = pWire.add(this, desc).sub(w, desc);
 		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
 		return bitWires.get(bitwidth);
 	}
 
 	public Wire isGreaterThanOrEqual(long v, int bitwidth, String... desc) {
-		return isGreaterThanOrEqual(generator.defineConstantWire(v, desc), bitwidth, desc);
+		return isGreaterThanOrEqual(generator.createConstantWire(v, desc), bitwidth, desc);
 	}
 
 	public Wire isGreaterThanOrEqual(BigInteger b, int bitwidth, String... desc) {
-		return isGreaterThanOrEqual(generator.defineConstantWire(b, desc), bitwidth, desc);
+		return isGreaterThanOrEqual(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
 	public Wire isGreaterThan(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
 		BigInteger p = new BigInteger("2").pow(bitwidth);
-		Wire pWire = generator.defineConstantWire(p, desc);
+		Wire pWire = generator.createConstantWire(p, desc);
 		Wire sum = pWire.add(w, desc).sub(this, desc);
 		WireArray bitWires = sum.getBitWires(bitwidth + 1, desc);
 		return bitWires.get(bitwidth).invAsBit(desc);
 	}
 
 	public Wire isGreaterThan(long v, int bitwidth, String... desc) {
-		return isGreaterThan(generator.defineConstantWire(v, desc), bitwidth, desc);
+		return isGreaterThan(generator.createConstantWire(v, desc), bitwidth, desc);
 	}
 
 	public Wire isGreaterThan(BigInteger b, int bitwidth, String... desc) {
-		return isGreaterThan(generator.defineConstantWire(b, desc), bitwidth, desc);
+		return isGreaterThan(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
 	public Wire rotateLeft(int numBits, int s, String... desc) {
@@ -364,7 +364,7 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 
@@ -382,7 +382,7 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 
@@ -400,7 +400,7 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 
@@ -418,7 +418,7 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 
@@ -438,7 +438,7 @@ public class Wire {
 		if (v == null) {
 			return new VariableWire(result);
 		} else {
-			return generator.defineConstantWire(v);
+			return generator.createConstantWire(v);
 		}
 	}
 

@@ -83,7 +83,7 @@ public class WireArray {
 			}
 		}
 		if (allConstant) {
-			output = generator.defineConstantWire(sum, desc);
+			output = generator.createConstantWire(sum, desc);
 		} else {
 			output = new LinearCombinationWire(generator.currentWireId++);
 			Instruction op = new AddBasicOp(array, output, desc);
@@ -261,7 +261,7 @@ public class WireArray {
 			generator.addToEvaluationQueue(op);
 			return out;
 		} else{
-			return generator.defineConstantWire(sum, desc);
+			return generator.createConstantWire(sum, desc);
 
 		}
 	}

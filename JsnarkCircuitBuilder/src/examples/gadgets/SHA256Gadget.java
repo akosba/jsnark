@@ -66,7 +66,7 @@ public class SHA256Gadget extends Gadget {
 		Wire[] outDigest = new Wire[8];
 		Wire[] hWires = new Wire[H.length];
 		for (int i = 0; i < H.length; i++) {
-			hWires[i] = generator.defineConstantWire(H[i]);
+			hWires[i] = generator.createConstantWire(H[i]);
 		}
 
 		for (int blockNum = 0; blockNum < numBlocks; blockNum++) {
@@ -222,14 +222,14 @@ public class SHA256Gadget extends Gadget {
 				pad = new Wire[128 - tailLength];
 				numBlocks++;
 			}
-			pad[0] = generator.defineConstantWire(0x80);
+			pad[0] = generator.createConstantWire(0x80);
 			for (int i = 1; i < pad.length - 8; i++) {
 				pad[i] = generator.getZeroWire();
 			}
 			long lengthInBits = totalLengthInBytes * 8;
 			Wire[] lengthBits = new Wire[64];
 			for (int i = 0; i < 8; i++) {
-				pad[pad.length - 1 - i] = generator.defineConstantWire((lengthInBits >>> (8 * i)) & 0xFFL);
+				pad[pad.length - 1 - i] = generator.createConstantWire((lengthInBits >>> (8 * i)) & 0xFFL);
 				Wire[] tmp = pad[pad.length - 1 - i].getBitWires(8).asArray();
 				System.arraycopy(tmp, 0, lengthBits, (7 - i) * 8, 8);
 			}

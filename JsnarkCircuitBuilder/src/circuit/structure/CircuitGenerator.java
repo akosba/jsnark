@@ -222,35 +222,35 @@ public abstract class CircuitGenerator {
 		zeroWire = oneWire.mul(0);
 	}
 
-	public Wire defineConstantWire(BigInteger x, String... desc) {
+	public Wire createConstantWire(BigInteger x, String... desc) {
 		return oneWire.mul(x, desc);
 	}
 
-	public Wire[] defineConstantWireArray(BigInteger[] a, String... desc) {
+	public Wire[] createConstantWireArray(BigInteger[] a, String... desc) {
 		Wire[] w = new Wire[a.length];
 		for (int i = 0; i < a.length; i++) {
-			w[i] = defineConstantWire(a[i], desc);
+			w[i] = createConstantWire(a[i], desc);
 		}
 		return w;
 	}
 
-	public Wire[] defineConstantWireArray(long[] a, String... desc) {
+	public Wire createConstantWire(long x, String... desc) {
+		return oneWire.mul(x, desc);
+	}
+	
+	public Wire[] createConstantWireArray(long[] a, String... desc) {
 		Wire[] w = new Wire[a.length];
 		for (int i = 0; i < a.length; i++) {
-			w[i] = defineConstantWire(a[i], desc);
+			w[i] = createConstantWire(a[i], desc);
 		}
 		return w;
 	}
 
-	public Wire defineConstantWire(long x, String... desc) {
-		return oneWire.mul(x, desc);
-	}
-
-	public Wire defineNegConstantWire(BigInteger x, String... desc) {
+	public Wire createNegConstantWire(BigInteger x, String... desc) {
 		return oneWire.mul(x.negate(), desc);
 	}
 
-	public Wire defineNegConstantWire(long x, String... desc) {
+	public Wire createNegConstantWire(long x, String... desc) {
 		return oneWire.mul(-x, desc);
 	}
 
@@ -343,7 +343,7 @@ public abstract class CircuitGenerator {
 	}
 
 	public void addEqualityAssertion(Wire w1, BigInteger b, String... desc) {
-		addAssertion(w1, oneWire, defineConstantWire(b, desc), desc);
+		addAssertion(w1, oneWire, createConstantWire(b, desc), desc);
 	}
 
 	public void evalCircuit() {

@@ -46,7 +46,7 @@ public class AugmentedAuctionCircuitGenerator extends CircuitGenerator {
 		}
 		secretOutputRandomness[numParties-1] =   createProverWitnessWireArray(7);
 
-		
+		// instantiate a Pinocchio gadget for the auction circuit
 		PinocchioGadget auctionGagdet = new PinocchioGadget(Util.concat(zeroWire, secretInputValues), pathToCompiledCircuit);
 		Wire[] outputs = auctionGagdet.getOutputWires();
 		

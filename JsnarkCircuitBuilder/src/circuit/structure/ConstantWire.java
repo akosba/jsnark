@@ -26,7 +26,7 @@ public class ConstantWire extends Wire {
 
 	public Wire mul(Wire w, String... desc) {
 		if (w instanceof ConstantWire) {
-			return generator.defineConstantWire(
+			return generator.createConstantWire(
 					constant.multiply(((ConstantWire) w).constant), desc);
 		} else {
 			return w.mul(constant, desc);

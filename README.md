@@ -73,7 +73,7 @@ Note: An IDE, e.g. Eclipse, or possibly the ant tool can be used instead to buil
 ### Examples included
 
 - __Basic Circuit Example__: `SimpleExampleCircuitGenerator.java`. This shows a circuit that computes very simple expressions.
-- __Basic Gagdet Example__: `DotProductGadget.java`. This is a gadget for computing the dot product of two vectors. The gadget is used in `DotProductCircuitGenerator.java`.
+- __Basic Gadget Example__: `DotProductGadget.java`. This is a gadget for computing the dot product of two vectors. The gadget is used in `DotProductCircuitGenerator.java`.
 - __Gadgets with witness computations done outside the circuit__: `FieldDivisonGadget.java`, `ModGadget.java`. This way of writing circuits is useful when verification is more efficient than computation, and when the prover witness value can be inferred automatically in the circuit. Note the usage of `specifyProverWitnessComputation(..)`. This must be positioned before the steps where the witness is used. 
 - __SHA256 Gadget__: This is a manually-optimized SHA256 Gadget for variable length input with a padding option. The code is written to be similar to how SHA256 is written in C, except for three main things: keeping track of bitwidth, manual optimizations for computation of ch and maj, and the explicit handling of overflows. 
 - __Pinocchio Integration__: `PinocchioGadget.java` and `AugmentedAuctionCircuitGenerator.java`. The Pinocchio gadget can be used to use compiled circuits by the Pinocchio compiler as gagdets. `AugmentedAuctionCircuitGenerator.java` shows how to use a compiled Auction circuit by Pinocchio, and augment with other manually-developed gadgets. This can help in the cases where the programmer needs to take care only of the bottleneck parts of the circuits. 
@@ -108,7 +108,7 @@ The gadget library of jsnark share some similarities with the C++ Gadget library
 
 ### Disclaimer
 
-The code is still under development for more testing and for more features. The future versions of this library will include more documentation, examples and optimizations.
+The code is still under development for more testing and for adding more features. The future versions of this library will include more documentation, examples and optimizations.
 
 ### Author
 This code is developed and maintained by Ahmed Kosba <akosba@cs.umd.edu>. Please email for any questions.
