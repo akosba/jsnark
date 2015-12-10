@@ -84,7 +84,7 @@ Note: An IDE, e.g. Eclipse, or possibly the ant tool can be used instead to buil
 To summarize the steps needed:
 - Extend the `CircuitGenerator` class. 
 - Override the `buildCircuit()` method: Identify the inputs, outputs and prover witness wires of your circuit, and instantiate/connect gadgets inside.
-- Override the `generateSampleInput()` method: Specify how the values of the input and possible some of the free prover witness wires are set. This helps in quick testing.
+- Override the `generateSampleInput()` method: Specify how the values of the input and possibly some of the free prover witness wires are set. This helps in quick testing.
 - To run a generator, the following methods should be invoked:
 	- `generateCircuit()`: generates the arithmetic circuit and the constraints.
 	- `evalCircuit()`: evaluates the circuit.
