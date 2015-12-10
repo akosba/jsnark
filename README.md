@@ -57,7 +57,7 @@ To compile the JsnarkCircuitBuilder project via command line:
 
 The classpath of junit4 may need to be adapted accordingly, in case the jar is located elsewhere.
 
-Before running the following, make sure the `PATH_TO_LIBSNARK_EXECUTABLE` property inside config.properties points to the path of the run_libsnark executable. 
+Before running the following, make sure the `PATH_TO_LIBSNARK_EXEC` property in `config.properties` points to the path of the run_libsnark executable. 
 
 To run a simple example, the following command can be used
 
