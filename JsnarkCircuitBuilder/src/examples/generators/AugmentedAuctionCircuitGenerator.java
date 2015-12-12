@@ -26,7 +26,7 @@ public class AugmentedAuctionCircuitGenerator extends CircuitGenerator {
 	private Wire[][] secretOutputRandomness; 
 	
 	private String pathToCompiledCircuit;
-	private int numParties; // involves the auction manager + the participants
+	private int numParties; // includes the auction manager + the participants
 	
 	public AugmentedAuctionCircuitGenerator(String circuitName, String pathToCompiledCircuit, int numParticipants) {
 		super(circuitName);
@@ -50,14 +50,16 @@ public class AugmentedAuctionCircuitGenerator extends CircuitGenerator {
 		PinocchioGadget auctionGagdet = new PinocchioGadget(Util.concat(zeroWire, secretInputValues), pathToCompiledCircuit);
 		Wire[] outputs = auctionGagdet.getOutputWires();
 		
-		// ignore the last output for this circuit.
+		// ignore the last output for this circuit which carries the index of the winner (not needed for this example)
 		secretOutputValues = Arrays.copyOfRange(outputs, 0, outputs.length - 1);
 		
+		// augment the input side
 		for(int i = 0; i < numParties - 1; i++){
 			SHA256Gadget g = new SHA256Gadget(Util.concat(secretInputValues[i], secretInputRandomness[i]), 64, 64, false, false);
 			makeOutputArray(g.getOutputWires(), "Commitment for party # " + i + "'s input balance.");
 		}
 		
+		// augment the output side
 		for(int i = 0; i < numParties; i++){
 			// adapt the output values to 64-bit values (adaptation is needed due to the way Pinocchio's compiler handles subtractions) 
 			secretOutputValues[i] = secretOutputValues[i].getBitWires(64*2).packAsBits(64);
