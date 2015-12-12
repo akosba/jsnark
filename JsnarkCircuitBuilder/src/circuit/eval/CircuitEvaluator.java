@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Queue;
+import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 import circuit.operations.WireLabelInstruction;
@@ -53,9 +53,11 @@ public class CircuitEvaluator {
 	}
 
 	public void evaluate() {
-		Queue<Instruction> evalSequence = circuitGenerator.getEvaluationQueue();
+		
+		System.out.println("Running Circuit Evaluator for < " + circuitGenerator.getName() + " >");
+		LinkedHashMap<Instruction, Instruction> evalSequence = circuitGenerator.getEvaluationQueue();
 
-		for (Instruction e : evalSequence) {
+		for (Instruction e : evalSequence.keySet()) {
 			e.evaluate(this);
 			e.emit(this);
 		}
@@ -65,15 +67,17 @@ public class CircuitEvaluator {
 				throw new RuntimeException("Wire#" + i + "is without value");
 			}
 		}
+		System.out.println("Circuit Evaluation Done for < " + circuitGenerator.getName() + " >\n\n");
+
 	}
 
 	public void writeInputFile() {
 		try {
-			Queue<Instruction> evalSequence = circuitGenerator
-					.getEvaluationQueue();
+			LinkedHashMap<Instruction, Instruction> evalSequence = circuitGenerator.getEvaluationQueue();
+
 			PrintWriter printWriter = new PrintWriter(
 					circuitGenerator.getName() + ".in");
-			for (Instruction e : evalSequence) {
+			for (Instruction e : evalSequence.keySet()) {
 				if (e instanceof WireLabelInstruction
 						&& (((WireLabelInstruction) e).getType() == LabelType.input || ((WireLabelInstruction) e)
 								.getType() == LabelType.nizkinput)) {

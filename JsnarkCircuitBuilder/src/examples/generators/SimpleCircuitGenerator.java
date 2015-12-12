@@ -30,7 +30,6 @@ public class SimpleCircuitGenerator extends CircuitGenerator {
 		// mark the wire as output
 		makeOutput(result);
 
-		printState("END");
 	}
 
 	@Override

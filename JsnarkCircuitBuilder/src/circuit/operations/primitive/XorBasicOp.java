@@ -32,4 +32,5 @@ public class XorBasicOp extends BasicOp {
 				assignment[inputs[1].getWireId()]);
 	}
 
+
 }

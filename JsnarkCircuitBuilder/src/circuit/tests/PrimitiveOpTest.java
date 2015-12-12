@@ -169,6 +169,7 @@ public class PrimitiveOpTest extends TestCase {
 		generator.generateCircuit();
 		CircuitEvaluator evaluator = new CircuitEvaluator(generator);
 		generator.generateSampleInput(evaluator);
+//		generator.printCircuit();
 		evaluator.evaluate();
 		for (int i = 0; i < numIns; i++) {
 			int r = result.get(i);

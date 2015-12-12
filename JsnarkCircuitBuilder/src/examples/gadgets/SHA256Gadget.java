@@ -124,8 +124,14 @@ public class SHA256Gadget extends Gadget {
 				Wire s0 = t4.xorBitwise(t5, 32);
 				s0 = s0.xorBitwise(t6, 32);
 
-				Wire maj = computeMaj(a, b, c, 32);
-
+				Wire maj;
+				if(i % 2 == 1){
+					maj = computeMaj(c, b, a, 32);
+				}
+				else{
+					maj = computeMaj(a, b, c, 32);
+				}
+				
 				Wire temp1 = w[i].add(K[i]).add(s1).add(h).add(ch);
 
 				Wire temp2 = maj.add(s0);
@@ -184,9 +190,9 @@ public class SHA256Gadget extends Gadget {
 		Wire[] cBits = c.getBitWires(numBits).asArray();
 
 		for (int i = 0; i < numBits; i++) {
-			Wire t1 = bBits[i].mul(cBits[i]);
-			Wire t2 = bBits[i].add(cBits[i]).add(t1.mul(-2));
-			result[i] = t1.add(aBits[i].mul(t2));
+			Wire t1 = aBits[i].mul(bBits[i]);
+			Wire t2 = aBits[i].add(bBits[i]).add(t1.mul(-2));
+			result[i] = t1.add(cBits[i].mul(t2));
 		}
 		return new WireArray(result).packAsBits();
 	}

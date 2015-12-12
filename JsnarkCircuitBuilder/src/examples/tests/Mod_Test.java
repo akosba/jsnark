@@ -14,6 +14,7 @@ import examples.gadgets.ModGadget;
 
 public class Mod_Test extends TestCase {
 
+	// TODO; add more tests
 	@Test
 	public void testCase1() {
 
@@ -46,8 +47,7 @@ public class Mod_Test extends TestCase {
 		generator.generateSampleInput(evaluator);
 		evaluator.evaluate();
 		Wire rWire = generator.getOutWires().get(0);
-		generator.printState("end");
-		assertEquals(evaluator.getWireValue(rWire), new BigInteger("" + a % b));
+		assertEquals(evaluator.getWireValue(rWire), BigInteger.valueOf(a % b));
 	}
 
 }

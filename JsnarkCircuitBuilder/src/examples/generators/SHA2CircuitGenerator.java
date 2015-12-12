@@ -16,16 +16,30 @@ public class SHA2CircuitGenerator extends CircuitGenerator {
 
 	@Override
 	protected void buildCircuit() {
-		inputWires = createInputWireArray(3, "");
-		sha2Gadget = new SHA256Gadget(inputWires, 8, 3, false, true, "");
+		
+		// assuming the circuit input will be 64 bytes
+		inputWires = createInputWireArray(64);
+		// this gadget is not applying any padding.
+		sha2Gadget = new SHA256Gadget(inputWires, 8, 64, false, false);
 		Wire[] digest = sha2Gadget.getOutputWires();
 		makeOutputArray(digest, "digest");
+		
+		// ======================================================================
+		// To see how padding can be done, and see how the gadget library will save constraints automatically, 
+		// try the snippet below instead.
+		/*
+			inputWires = createInputWireArray(3); 	// 3-byte input
+			sha2Gadget = new SHA256Gadget(inputWires, 8, 3, false, true);
+			Wire[] digest = sha2Gadget.getOutputWires();
+			makeOutputArray(digest, "digest");
+		*/
+		
 	}
 
 	@Override
 	public void generateSampleInput(CircuitEvaluator evaluator) {
-		String inputStr = "abc";
-		for (int i = 0; i < inputStr.length(); i++) {
+		String inputStr = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl";
+		for (int i = 0; i < inputWires.length; i++) {
 			evaluator.setWireValue(inputWires[i], inputStr.charAt(i));
 		}
 	}

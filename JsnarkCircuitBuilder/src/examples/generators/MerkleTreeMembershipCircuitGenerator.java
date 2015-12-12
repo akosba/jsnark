@@ -52,10 +52,9 @@ public class MerkleTreeMembershipCircuitGenerator extends CircuitGenerator {
 		
 		makeOutputArray(actualRoot, "Computed Root");
 		
-		/** Expected mismatch **/
+		/** Expected mismatch here if the sample input below is tried**/
 		makeOutput(errorAccumulator.checkNonZero(), "Error if NON-zero");
 		
-		printState("End");
 	}
 
 	@Override

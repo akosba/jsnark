@@ -74,8 +74,14 @@ public class Wire {
 			w.packIfNeeded(desc);
 			Wire output = new VariableWire(generator.currentWireId++);
 			Instruction op = new MulBasicOp(this, w, output, desc);
-			generator.addToEvaluationQueue(op);
-			return output;
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+			if(cachedOutputs == null){
+				return output;
+			}
+			else{
+				generator.currentWireId--;
+				return cachedOutputs[0];
+			}
 		}
 	}
 
@@ -137,8 +143,14 @@ public class Wire {
 								// needed
 			Wire out = new VariableWire(generator.currentWireId++);
 			Instruction op = new ORBasicOp(this, w, out, desc);
-			generator.addToEvaluationQueue(op);
-			return out;
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+			if(cachedOutputs == null){
+				return out;
+			}
+			else{
+				generator.currentWireId--;
+				return cachedOutputs[0];
+			}
 		}
 	}
 
@@ -157,8 +169,14 @@ public class Wire {
 								// needed
 			Wire out = new VariableWire(generator.currentWireId++);
 			Instruction op = new XorBasicOp(this, w, out, desc);
-			generator.addToEvaluationQueue(op);
-			return out;
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+			if(cachedOutputs == null){
+				return out;
+			}
+			else{
+				generator.currentWireId--;
+				return cachedOutputs[0];
+			}
 		}
 	}
 

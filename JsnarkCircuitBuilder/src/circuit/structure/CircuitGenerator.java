@@ -9,14 +9,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import circuit.config.Config;
 import circuit.eval.CircuitEvaluator;
 import circuit.eval.Instruction;
-import circuit.operations.Gadget;
 import circuit.operations.WireLabelInstruction;
 import circuit.operations.WireLabelInstruction.LabelType;
 import circuit.operations.primitive.AssertBasicOp;
@@ -29,7 +27,7 @@ public abstract class CircuitGenerator {
 	private static CircuitGenerator instance;
 
 	protected int currentWireId;
-	protected Queue<Instruction> evaluationQueue;
+	protected LinkedHashMap<Instruction, Instruction> evaluationQueue;
 
 	protected Wire zeroWire;
 	protected Wire oneWire;
@@ -40,7 +38,6 @@ public abstract class CircuitGenerator {
 
 	protected String circuitName;
 
-	protected HashMap<Class<?>, Gadget> gadgetTypes;
 	protected HashMap<BigInteger, Wire> knownConstantWires;
 
 	private int numOfConstraints;
@@ -54,8 +51,7 @@ public abstract class CircuitGenerator {
 		inWires = new ArrayList<Wire>();
 		outWires = new ArrayList<Wire>();
 		proverWitnessWires = new ArrayList<Wire>();
-		gadgetTypes = new HashMap<Class<?>, Gadget>();
-		evaluationQueue = new LinkedList<Instruction>();
+		evaluationQueue = new LinkedHashMap<Instruction, Instruction>();
 		knownConstantWires = new HashMap<BigInteger, Wire>();
 		currentWireId = 0;
 		numOfConstraints = 0;
@@ -83,8 +79,13 @@ public abstract class CircuitGenerator {
 	protected abstract void buildCircuit();
 
 	public final void generateCircuit() {
+		
+		System.out.println("Running Circuit Generator for < " + circuitName + " >");
+
 		initCircuitConstruction();
 		buildCircuit();
+		
+		System.out.println("Circuit Generation Done for < " + circuitName + " >  \n \t Total Number of Constraints :  " + getNumOfConstraints() + "\n");
 	}
 
 	public String getName() {
@@ -161,11 +162,17 @@ public abstract class CircuitGenerator {
 
 	}
 
-	public Wire makeVariable(Wire wire, String... desc) {
+	private Wire makeVariable(Wire wire, String... desc) {
 		Wire outputWire = new VariableWire(currentWireId++);
 		Instruction op = new MulBasicOp(wire, oneWire, outputWire, desc);
-		addToEvaluationQueue(op);
-		return outputWire;
+		Wire[] cachedOutputs = addToEvaluationQueue(op);
+		if(cachedOutputs == null){
+			return outputWire;
+		}
+		else{
+			currentWireId--;
+			return cachedOutputs[0];
+		}
 	}
 
 	public Wire[] makeOutputArray(Wire[] wires, String... desc) {
@@ -202,7 +209,7 @@ public abstract class CircuitGenerator {
 			PrintWriter printWriter = new PrintWriter(new BufferedWriter(new FileWriter(getName() + ".arith")));
 
 			printWriter.println("total " + currentWireId);
-			for (Instruction e : evaluationQueue) {
+			for (Instruction e : evaluationQueue.keySet()) {
 				if (e.doneWithinCircuit()) {
 					printWriter.print(e + "\n");
 				}
@@ -210,6 +217,15 @@ public abstract class CircuitGenerator {
 			printWriter.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void printCircuit() {
+
+		for (Instruction e : evaluationQueue.keySet()) {
+			if (e.doneWithinCircuit()) {
+				System.out.println(e);
+			}
 		}
 
 	}
@@ -237,7 +253,7 @@ public abstract class CircuitGenerator {
 	public Wire createConstantWire(long x, String... desc) {
 		return oneWire.mul(x, desc);
 	}
-	
+
 	public Wire[] createConstantWireArray(long[] a, String... desc) {
 		Wire[] w = new Wire[a.length];
 		for (int i = 0; i < a.length; i++) {
@@ -272,7 +288,7 @@ public abstract class CircuitGenerator {
 		return oneWire;
 	}
 
-	public Queue<Instruction> getEvaluationQueue() {
+	public LinkedHashMap<Instruction, Instruction> getEvaluationQueue() {
 		return evaluationQueue;
 	}
 
@@ -280,10 +296,17 @@ public abstract class CircuitGenerator {
 		return currentWireId;
 	}
 
-	public void addToEvaluationQueue(Instruction e) {
-		if (e instanceof BasicOp)
+	public Wire[] addToEvaluationQueue(Instruction e) {
+		if (evaluationQueue.containsKey(e)) {
+			if (e instanceof BasicOp) {
+				return ((BasicOp) evaluationQueue.get(e)).getOutputs();
+			}
+		}
+		if (e instanceof BasicOp) {
 			numOfConstraints += ((BasicOp) e).getNumMulGates();
-		evaluationQueue.add(e);
+		}
+		evaluationQueue.put(e, e);
+		return null;
 	}
 
 	public void printState(String message) {
@@ -361,13 +384,14 @@ public abstract class CircuitGenerator {
 	}
 
 	public void runLibsnark() {
-		
+
 		try {
 			Process p;
-			p = Runtime.getRuntime().exec(
-					new String[] { Config.LIBSNARK_EXEC, circuitName + ".arith", circuitName + ".in" });
+			p = Runtime.getRuntime()
+					.exec(new String[] { Config.LIBSNARK_EXEC, circuitName + ".arith", circuitName + ".in" });
 			p.waitFor();
-			System.out.println("\n-----------------------------------RUNNING LIBSNARK -----------------------------------------");
+			System.out.println(
+					"\n-----------------------------------RUNNING LIBSNARK -----------------------------------------");
 			String line;
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			StringBuffer buf = new StringBuffer();
