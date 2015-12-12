@@ -94,21 +94,20 @@ To summarize the steps needed:
 
 ### Running circuits compiled by Pinocchio on libsnark
 
-- To use Pinocchio directly with libsark, run the interface executable on the `<circuit name>.arith` and `<circuit name>.in` files. The `<circuit name>.in` should specify the hexadecimal value for each input and nizkinput wire id, in the following format: `id value`, each on a separate line.
-- It is important to assign 1 to the wire denoted as the one wire input.
+- To use Pinocchio directly with libsark, run the interface executable on the `<circuit name>.arith` and `<circuit name>.in` files. The `<circuit name>.in` should specify the hexadecimal value for each input and nizkinput wire ids, in the following format: `id value`, each on a separate line.
+- It is important to assign 1 to the wire denoted as the one wire input in the arithmetic file.
 
 ### Comparison with libsnark's gadget libraries
 
-The gadget library of jsnark share some similarities with the C++ Gadget library of libsnark, but it has some options that could possibly help for writing optimized circuits quickly without specifying all details. If the reader is familiar with the gadget libraries of libsnark, and would like to try jsnark, here are some key points to minimize confusion:
+The gadget library of jsnark shares some similarities with the C++ Gadget library of libsnark, but it has some options that could possibly help for writing optimized circuits quickly without specifying all details. If the reader is familiar with the gadget libraries of libsnark, and would like to try jsnark, here are some key points to minimize confusion:
 - No need to maintain a distinction between Variables, LinearCombinations, ... etc. The type Wire can be used to represent Variables, LinearCombinations, Constants, .. etc. The library handles the mapping in a later stage.
 - Instead of having the notion of primary input and auxiliary input for representing variables, the important wires in jsnark can be labeled anywhere as either input, output, prover witness wires. Both the input and output wires are public and seen by the verifier (this corresponds to the primary input in libsnark). The prover witness wires refer to the *free* input variables provided by the prover. This is in some sense similar to the way Pinocchio's compiler classifies wires.  
 - Each Gadget in libsnark requires writing and calling two methods: generateConstraints() to specify the r1cs constraints, and generateWitness() to invoke the witness computation. In jsnark's builder, applying primitive operations on wires generate constraints automatically. Additionally, the witness computation is done automatically for primitive operations, and does not need to be explicitly invoked, except in the case of prover witness computation that has to be done outside the circuit, e.g. the FieldDivisionGadget example.
-- The library cancels unneeded constraints. This helps in code reusability when changing input variables wires to carry constant values instead. 
-
+- Jsnark applies caching and other techniques during circuit construction to cancel unneeded constraints. This helps in code reusability when changing input variables wires to carry constant values instead, and in reducing the complexity when writing optimized circuits. One example is the ``maj`` calculation in the SHA256 gadget, in which jsnark detects similar operations across the loop iterations, with little effort from the programmer. Also, ``CachingTest.java`` illustrates the benefit.
 
 ### Disclaimer
 
-The code is still under development for more testing and for adding more features. The future versions of this library will include more documentation, examples and optimizations.
+The code is undergoing more testing and integration of other features. The future versions of this library will include more documentation, examples and optimizations.
 
 ### Author
 This code is developed and maintained by Ahmed Kosba <akosba@cs.umd.edu>. Please email for any questions.
