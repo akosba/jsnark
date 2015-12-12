@@ -125,6 +125,8 @@ public class SHA256Gadget extends Gadget {
 				s0 = s0.xorBitwise(t6, 32);
 
 				Wire maj;
+				// since after each iteration, SHA256 does c = b; and b = a;, we can make use of that to save multiplications in maj computation.
+				// To do this, we make use of the caching feature, by just changing the order of wires sent to maj(). Caching will take care of the rest.
 				if(i % 2 == 1){
 					maj = computeMaj(c, b, a, 32);
 				}
