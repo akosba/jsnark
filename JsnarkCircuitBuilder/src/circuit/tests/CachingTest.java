@@ -53,7 +53,7 @@ public class CachingTest extends TestCase {
 			
 		}
 
-		CircuitGenerator generator = new CircuitGenerator("boolean_operations") {
+		CircuitGenerator generator = new CircuitGenerator("Caching_Test") {
 			Wire[] inputs1;
 			Wire[] inputs2;
 			Wire[] inputs3;
