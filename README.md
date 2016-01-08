@@ -2,7 +2,7 @@
 
 This is a Java library for building circuits for preprocessing zk-SNARKs. The library uses libsnark as a backend (https://github.com/scipr-lab/libsnark), and can integrate circuits produced by the Pinocchio compiler (https://vc.codeplex.com/SourceControl/latest) when needed by the programmer. The code consists of two main parts:
 - `JsnarkCircuitBuilder`: A Java project that has a Gadget library for building/augmenting circuits. (Check the `src/examples` package)
-- `libsnark/src/interface`: A C++ interface with libsnark which accepts circuits produced by either the circuit builder or by Pinocchio's compiler directly.
+- `libsnark/src/interface`: A C++ interface to libsnark which accepts circuits produced by either the circuit builder or by Pinocchio's compiler directly.
 
 ### Prerequisites
 
@@ -57,7 +57,7 @@ To compile the JsnarkCircuitBuilder project via command line:
 
 The classpath of junit4 may need to be adapted accordingly, in case the jar is located elsewhere.
 
-Before running the following, make sure the `PATH_TO_LIBSNARK_EXEC` property in `config.properties` points to the path of the run_libsnark executable. 
+Before running the following, make sure the `PATH_TO_LIBSNARK_EXEC` property in `config.properties` points to the path of the `run_libsnark` executable. 
 
 To run a simple example, the following command can be used
 
@@ -102,7 +102,7 @@ To summarize the steps needed:
 The gadget library of jsnark shares some similarities with the C++ Gadget library of libsnark, but it has some options that could possibly help for writing optimized circuits quickly without specifying all details. If the reader is familiar with the gadget libraries of libsnark, and would like to try jsnark, here are some key points to minimize confusion:
 - No need to maintain a distinction between Variables, LinearCombinations, ... etc. The type Wire can be used to represent Variables, LinearCombinations, Constants, .. etc. The library handles the mapping in a later stage.
 - Instead of having the notion of primary input and auxiliary input for representing variables, the important wires in jsnark can be labeled anywhere as either input, output, prover witness wires. Both the input and output wires are public and seen by the verifier (this corresponds to the primary input in libsnark). The prover witness wires refer to the *free* input variables provided by the prover. This is in some sense similar to the way Pinocchio's compiler classifies wires.  
-- Each Gadget in libsnark requires writing and calling two methods: generateConstraints() to specify the r1cs constraints, and generateWitness() to invoke the witness computation. In jsnark's builder, applying primitive operations on wires generate constraints automatically. Additionally, the witness computation is done automatically for primitive operations, and does not need to be explicitly invoked, except in the case of prover witness computation that has to be done outside the circuit, e.g. the FieldDivisionGadget example.
+- Each Gadget in libsnark requires writing and calling two methods: generateConstraints() to specify the r1cs constraints, and generateWitness() to invoke the witness computation. In jsnark's builder, applying primitive operations on wires generates constraints automatically. Additionally, the witness computation is done automatically for primitive operations, and does not need to be explicitly invoked, except in the case of prover witness computation that has to be done outside the circuit, e.g. the FieldDivisionGadget example.
 - Jsnark applies caching and other techniques during circuit construction to cancel unneeded constraints. This helps in code reusability when changing input variables wires to carry constant values instead. This also helps in reducing the complexity when writing optimized circuits. One example is the ``maj`` calculation in the SHA256 gadget, in which jsnark detects similar operations across the loop iterations with little effort from the programmer, resulting in more than 1000 gates savings. ``CachingTest.java`` also illustrates what the caching approach can help with.
 
 ### Disclaimer
