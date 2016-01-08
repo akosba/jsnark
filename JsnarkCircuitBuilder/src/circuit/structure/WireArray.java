@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Author: Ahmed Kosba <akosba@cs.umd.edu>
+ *******************************************************************************/
 package circuit.structure;
 
 import java.math.BigInteger;
@@ -46,18 +49,6 @@ public class WireArray {
 	public Wire[] asArray(){
 		return array;
 	}
-
-//	public WireVector mulWireVector(WireVector v, String...desc) {
-//		if (this.wireArray.length != v.wireArray.length) {
-//			throw new IllegalArgumentException(
-//					"The length of both operands should match");
-//		}
-//		Wire[] out = new Wire[wireArray.length];
-//		for (int i = 0; i < out.length; i++) {
-//			out[i] = wireArray[i].mul(v.wireArray[i], desc);
-//		}
-//		return new WireVector(out);
-//	}
 	
 	public WireArray mulWireArray(WireArray v, int desiredLength, String...desc) {
 		Wire[] ws1 = adjustLength( array, desiredLength);
@@ -170,7 +161,6 @@ public class WireArray {
 		Wire[] newWs = new Wire[desiredLength];
 		System.arraycopy(ws, 0, newWs, 0, Math.min(ws.length, desiredLength));
 		if (ws.length < desiredLength) {
-			CircuitGenerator generator = CircuitGenerator.getActiveCircuitGenerator();
 			for (int i = ws.length; i < desiredLength; i++) {
 				newWs[i] = generator.zeroWire;
 			}
@@ -185,7 +175,6 @@ public class WireArray {
 		Wire[] newWs = new Wire[desiredLength];
 		System.arraycopy(array, 0, newWs, 0, Math.min(array.length, desiredLength));
 		if (array.length < desiredLength) {
-			CircuitGenerator generator = CircuitGenerator.getActiveCircuitGenerator();
 			for (int i = array.length; i < desiredLength; i++) {
 				newWs[i] = generator.zeroWire;
 			}
@@ -203,7 +192,7 @@ public class WireArray {
 		return packAsBits(array.length, desc);
 	}
 	
-	BigInteger checkIfConstantBits(String...desc){
+	protected BigInteger checkIfConstantBits(String...desc){
 		boolean allConstant = true;
 		BigInteger sum = BigInteger.ZERO;
 		for(int i = 0; i < array.length; i++){
@@ -316,23 +305,8 @@ public class WireArray {
 		}
 		return new WireArray(shiftedBits);
 	}
-	
-	
-	public WireArray multiPackBits(int sizePerSingleWord,
-			String...desc) {
-		int n = (int) Math.ceil(array.length * 1.0 / sizePerSingleWord);
-		Wire[] out = new Wire[n];
-		for (int k = 0; k < n; k++) {
-			out[k] = packAsBits(k * sizePerSingleWord,
-					Math.min((k + 1) * sizePerSingleWord, array.length),
-					desc);
-		}
-		return new WireArray(out);
-	}
-	
-	
+		
 	public Wire[] packBitsIntoWords(int wordBitwidth, String...desc){
-//		Wire[] bits = array;
 		int numWords = (int)Math.ceil(array.length*1.0/wordBitwidth);
 		Wire[] padded = adjustLength( array, wordBitwidth*numWords);
 		Wire[] result = new Wire[numWords];
@@ -342,15 +316,13 @@ public class WireArray {
 		return result;
 	}
 	
-	public Wire[] packWordsIntoLargerWords(int wordBitwidth, int numWordsPerLargerWords, String...desc){
-//		Wire[] bits = array;
-		int numLargerWords = (int)Math.ceil(array.length*1.0/numWordsPerLargerWords);
-
+	public Wire[] packWordsIntoLargerWords(int wordBitwidth, int numWordsPerLargerWord, String...desc){
+		int numLargerWords = (int)Math.ceil(array.length*1.0/numWordsPerLargerWord);
 		Wire[] result = new Wire[numLargerWords];
 		Arrays.fill(result, generator.zeroWire);
 		for(int i = 0; i < array.length; i++){
-			int subIndex = i % numWordsPerLargerWords;
-			result[i/numWordsPerLargerWords] = result[i/numWordsPerLargerWords].add(array[i]
+			int subIndex = i % numWordsPerLargerWord;
+			result[i/numWordsPerLargerWord] = result[i/numWordsPerLargerWord].add(array[i]
 					.mul(new BigInteger("2").pow(subIndex*wordBitwidth)));
  		}
 		return result;

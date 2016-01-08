@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Author: Ahmed Kosba <akosba@cs.umd.edu>
+ *******************************************************************************/
 package circuit.operations.primitive;
 
 import java.math.BigInteger;

@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Author: Ahmed Kosba <akosba@cs.umd.edu>
+ *******************************************************************************/
 package examples.gadgets;
 
 import java.math.BigInteger;
@@ -11,8 +14,7 @@ import circuit.structure.Wire;
 public class SubsetSumHashGadget extends Gadget {
 
 	public static final int DIMENSION = 3;
-	public static final int INPUT_LENGTH = 2 * DIMENSION * Config.LOG2_FIELD_PRIME; // in
-																					// bits
+	public static final int INPUT_LENGTH = 2 * DIMENSION * Config.LOG2_FIELD_PRIME; // length in bits
 	private static final BigInteger[][] COEFFS;
 
 	private Wire[] inputWires;

@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Author: Ahmed Kosba <akosba@cs.umd.edu>
+ *******************************************************************************/
 package examples.gadgets;
 
 import circuit.config.Config;
@@ -54,8 +57,8 @@ public class MerkleTreePathGadget extends Gadget {
 				inHash[j] = temp.sub(inHash[j - digestWidth]);
 			}
 
-			Wire[] nextBits = new WireArray(inHash).getBits(Config.LOG2_FIELD_PRIME).asArray();
-			subsetSumGadget = new SubsetSumHashGadget(nextBits, false);
+			Wire[] nextInputBits = new WireArray(inHash).getBits(Config.LOG2_FIELD_PRIME).asArray();
+			subsetSumGadget = new SubsetSumHashGadget(nextInputBits, false);
 			currentHash = subsetSumGadget.getOutputWires();
 		}
 		outRoot = currentHash;
