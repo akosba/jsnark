@@ -12,7 +12,6 @@ import circuit.structure.Wire;
 
 /**
  * This gadget provides the remainder of a % b. 
- * Use within appropriate ranges so that the prover cannot cheat via overflows.
  *
  *
  */
