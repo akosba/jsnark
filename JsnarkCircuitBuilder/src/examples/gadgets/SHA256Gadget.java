@@ -220,9 +220,6 @@ public class SHA256Gadget extends Gadget {
 	private void prepare() {
 
 		numBlocks = (int) Math.ceil(totalLengthInBytes * 1.0 / 64);
-		if (numBlocks == 0) {
-			numBlocks++;
-		}
 		Wire[] bits = new WireArray(unpaddedInputs).getBits(bitwidthPerInputElement).asArray();
 		int tailLength = totalLengthInBytes % 64;
 		if (paddingRequired) {
@@ -231,8 +228,8 @@ public class SHA256Gadget extends Gadget {
 				pad = new Wire[64 - tailLength];
 			} else {
 				pad = new Wire[128 - tailLength];
-				numBlocks++;
 			}
+			numBlocks = (totalLengthInBytes + pad.length)/64;
 			pad[0] = generator.createConstantWire(0x80);
 			for (int i = 1; i < pad.length - 8; i++) {
 				pad[i] = generator.getZeroWire();
