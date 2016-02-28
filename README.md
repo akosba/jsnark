@@ -53,7 +53,7 @@ To compile the JsnarkCircuitBuilder project via command line:
 
     $ cd JsnarkCircuitBuilder
     $ mkdir -p bin
-    $ javac -d bin -cp /usr/share/java/junit4.jar  $(find ./src/* | grep .java)
+    $ javac -d bin -cp /usr/share/java/junit4.jar  $(find ./src/* | grep ".java$")
 
 The classpath of junit4 may need to be adapted accordingly, in case the jar is located elsewhere.
 
