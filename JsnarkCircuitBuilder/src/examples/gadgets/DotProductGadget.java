@@ -6,13 +6,13 @@ package examples.gadgets;
 import circuit.operations.Gadget;
 import circuit.structure.Wire;
 
-public class DotPorductGadget extends Gadget {
+public class DotProductGadget extends Gadget {
 
 	private Wire[] a;
 	private Wire[] b;
 	private Wire output;
 
-	public DotPorductGadget(Wire[] a, Wire[] b, String... desc) {
+	public DotProductGadget(Wire[] a, Wire[] b, String... desc) {
 		super(desc);
 		if (a.length != b.length) {
 			throw new IllegalArgumentException();

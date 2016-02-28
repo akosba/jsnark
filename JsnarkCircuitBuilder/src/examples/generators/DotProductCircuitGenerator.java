@@ -6,7 +6,7 @@ package examples.generators;
 import circuit.eval.CircuitEvaluator;
 import circuit.structure.CircuitGenerator;
 import circuit.structure.Wire;
-import examples.gadgets.DotPorductGadget;
+import examples.gadgets.DotProductGadget;
 
 public class DotProductCircuitGenerator extends CircuitGenerator {
 
@@ -25,8 +25,8 @@ public class DotProductCircuitGenerator extends CircuitGenerator {
 		a = createInputWireArray(dimension, "Input a");
 		b = createInputWireArray(dimension, "Input b");
 
-		DotPorductGadget dotPorductGadget = new DotPorductGadget(a, b);
-		Wire[] result = dotPorductGadget.getOutputWires();
+		DotProductGadget dotProductGadget = new DotProductGadget(a, b);
+		Wire[] result = dotProductGadget.getOutputWires();
 		makeOutput(result[0], "output of dot product a, b");
 	}
 
