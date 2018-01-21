@@ -72,7 +72,7 @@ Note: An IDE, e.g. Eclipse, or possibly the ant tool can be used instead to buil
 
 ### Examples included
 
-- __Basic Circuit Example__: `SimpleExampleCircuitGenerator.java`. This shows a circuit that computes very simple expressions.
+- __Basic Circuit Example__: `SimpleCircuitGenerator.java`. This shows a circuit that computes very simple expressions.
 - __Basic Gadget Example__: `DotProductGadget.java`. This is a gadget for computing the dot product of two vectors. The gadget is used in `DotProductCircuitGenerator.java`.
 - __Gadgets with witness computations done outside the circuit__: `FieldDivisonGadget.java`, `ModGadget.java`. This way of writing circuits is useful when verification is more efficient than computation, and when the prover witness value can be inferred automatically in the circuit. Note the usage of `specifyProverWitnessComputation(..)`. This must be positioned before the steps where the witness is used. 
 - __SHA256 Gadget__: This is a manually-optimized SHA256 Gadget for variable-length input with a padding option. The code is written to be similar to how SHA256 is written in C, except for three main things: keeping track of bitwidth, manual optimizations for computation of ch and maj, and the explicit handling of overflows. Making use of jsnark's optimizations, our implementation for the SHA256 gadget costs __26196 constraints for one block__. If padding is applied within the block, the cost can be even lower. 
