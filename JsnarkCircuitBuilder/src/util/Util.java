@@ -177,10 +177,7 @@ public class Util {
 	}
 
 	public static String padZeros(String s, int l) {
-		for (int i = 0; i < (l - s.length()); i++) {
-			s = "0" + s;
-		}
-		return s;
+		return String.format("%" + l + "s",s).replace(' ', '0');
 	}
 
 }
