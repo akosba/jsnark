@@ -327,12 +327,12 @@ public class Wire {
 	}
 
 	public Wire isLessThan(long v, int bitwidth, String... desc) {
-		return isLessThanOrEqual(generator.createConstantWire(v, desc), bitwidth, desc);
+		return isLessThan(generator.createConstantWire(v, desc), bitwidth, desc);
 
 	}
 
 	public Wire isLessThan(BigInteger b, int bitwidth, String... desc) {
-		return isLessThanOrEqual(generator.createConstantWire(b, desc), bitwidth, desc);
+		return isLessThan(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
 	public Wire isGreaterThanOrEqual(Wire w, int bitwidth, String... desc) {
