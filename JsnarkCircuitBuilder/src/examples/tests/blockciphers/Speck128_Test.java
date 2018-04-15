@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Author: Ahmed Kosba <akosba@cs.umd.edu>
  *******************************************************************************/
-package examples.tests;
+package examples.tests.blockciphers;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -13,11 +13,11 @@ import org.junit.Test;
 import circuit.eval.CircuitEvaluator;
 import circuit.structure.CircuitGenerator;
 import circuit.structure.Wire;
-import examples.gadgets.encrypt.Speck128CipherGadget;
+import examples.gadgets.blockciphers.Speck128CipherGadget;
 
 /**
  * Tests SPECK block cipher @ keysize = 128, blocksize = 128.
- * Test vector obtained from: https://github.com/inmcm/Simon_Speck_Ciphers/blob/master/Python/tests.py			
+ * Test vector obtained from:  https://github.com/inmcm/Simon_Speck_Ciphers/blob/master/Python/SimonSpeckCiphers/tests/test_simonspeck.py			
  */
 
 public class Speck128_Test extends TestCase {

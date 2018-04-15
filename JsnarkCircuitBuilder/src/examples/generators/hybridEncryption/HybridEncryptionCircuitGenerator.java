@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Author: Ahmed Kosba <akosba@cs.umd.edu>
  *******************************************************************************/
-package examples.generators;
+package examples.generators.hybridEncryption;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -11,11 +11,14 @@ import circuit.eval.CircuitEvaluator;
 import circuit.structure.CircuitGenerator;
 import circuit.structure.Wire;
 import circuit.structure.WireArray;
-import examples.gadgets.SHA256Gadget;
-import examples.gadgets.encrypt.DHKeyExchangeGadget;
-import examples.gadgets.encrypt.SymmetricEncryptionCBCGadget;
+import examples.gadgets.blockciphers.SymmetricEncryptionCBCGadget;
+import examples.gadgets.diffieHellmanKeyExchange.FieldExtensionDHKeyExchange;
+import examples.gadgets.hash.SHA256Gadget;
 
-public class EncryptionCircuitGenerator extends CircuitGenerator {
+// This gadget shows a simple example of hybrid encryption for illustration purposes
+// It currently uses the field extension key exchange gadget with the speck cipher
+
+public class HybridEncryptionCircuitGenerator extends CircuitGenerator {
 
 	private Wire[] plaintext; // as 64-bit words
 	private int plaintextSize; // number of 64-bit words
@@ -26,11 +29,11 @@ public class EncryptionCircuitGenerator extends CircuitGenerator {
 
 	// Will assume the parameterization used in the test files ~ 80-bits
 	// security
-	public static final int EXPONENT_SIZE = 398; // in bits
-	public static final int mu = 4;
-	public static final int omega = 7;
+	public static final int EXPONENT_BITWIDTH = 397; // in bits
+	public static final int MU = 4;
+	public static final int OMEGA = 7;
 	
-	public EncryptionCircuitGenerator(String circuitName, int plaintextSize,
+	public HybridEncryptionCircuitGenerator(String circuitName, int plaintextSize,
 			String ciphername) {
 		super(circuitName);
 		this.ciphername = ciphername;
@@ -46,13 +49,13 @@ public class EncryptionCircuitGenerator extends CircuitGenerator {
 		// Part I: Exchange a key:
 		
 		// The secret exponent is a private input by the prover
-		secExpBits = createProverWitnessWireArray(EXPONENT_SIZE, "SecretExponent");
-		for(int i = 0; i < EXPONENT_SIZE; i++){
+		secExpBits = createProverWitnessWireArray(EXPONENT_BITWIDTH, "SecretExponent");
+		for(int i = 0; i < EXPONENT_BITWIDTH; i++){
 			addBinaryAssertion(secExpBits[i]); // verify all bits are binary
 		}
 
-		Wire[] g = new Wire[mu];
-		Wire[] h = new Wire[mu];
+		Wire[] g = new Wire[MU];
+		Wire[] h = new Wire[MU];
 
 		// Hardcode the base and the other party's key (suitable when keys are not expected to change)
 		g[0] = createConstantWire(new BigInteger("16377448892084713529161739182205318095580119111576802375181616547062197291263"));
@@ -74,16 +77,16 @@ public class EncryptionCircuitGenerator extends CircuitGenerator {
 		 */
 
 		// Exchange keys
-		DHKeyExchangeGadget gadget = new DHKeyExchangeGadget(g, h, secExpBits,
-				omega, "");
+		FieldExtensionDHKeyExchange exchange = new FieldExtensionDHKeyExchange(g, h, secExpBits,
+				OMEGA, "");
 
 		// Output g^s
-		Wire[] g_to_s = gadget.getG_to_s();
+		Wire[] g_to_s = exchange.getOutputPublicValue();
 		makeOutputArray(g_to_s, "DH Key Exchange Output");
 
 		// Use h^s to generate a symmetric secret key and an initialization
 		// vector. Apply a Hash-based KDF.
-		Wire[] h_to_s = gadget.getH_to_s();
+		Wire[] h_to_s = exchange.getSharedSecret();
 		SHA256Gadget hashGadget = new SHA256Gadget(h_to_s, 256, 128, true,
 				false);
 		Wire[] secret = hashGadget.getOutputWires();
@@ -106,14 +109,14 @@ public class EncryptionCircuitGenerator extends CircuitGenerator {
 		for(int i = 0; i < plaintextSize; i++){
 			evaluator.setWireValue(plaintext[i], Util.nextRandomBigInteger(64));
 		}
-		for(int i = 0; i < EXPONENT_SIZE; i++){
+		for(int i = 0; i < EXPONENT_BITWIDTH; i++){
 			evaluator.setWireValue(secExpBits[i], Util.nextRandomBigInteger(1));
 		}
 		
 	}
 
 	public static void main(String[] args) throws Exception {
-		EncryptionCircuitGenerator generator = new EncryptionCircuitGenerator(
+		HybridEncryptionCircuitGenerator generator = new HybridEncryptionCircuitGenerator(
 				"enc_example", 16, "speck128");
 		generator.generateCircuit();
 		generator.evalCircuit();
