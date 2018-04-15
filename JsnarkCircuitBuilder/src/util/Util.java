@@ -180,4 +180,24 @@ public class Util {
 		return String.format("%" + l + "s",s).replace(' ', '0');
 	}
 
+	public static BigInteger computeMaxValue(int numBits){
+		return BigIntStorage.getInstance().getBigInteger(
+				new BigInteger("2").pow(numBits).subtract(
+						BigInteger.ONE));
+	}
+	
+	public static BigInteger computeBound(int numBits){
+		return BigIntStorage.getInstance().getBigInteger(
+				new BigInteger("2").pow(numBits));
+	}
+	
+	public static BigInteger[] split(BigInteger x, int chunksize) {
+		int numChunks = (int)Math.ceil(x.bitLength()*1.0/chunksize);
+		BigInteger[] chunks = new BigInteger[numChunks];
+		BigInteger mask = new BigInteger("2").pow(chunksize).subtract(BigInteger.ONE);
+		for (int i = 0; i < numChunks; i++) {
+			chunks[i] = x.shiftRight(chunksize * i).and(mask);
+		}
+		return chunks;
+	}
 }
