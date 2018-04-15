@@ -13,10 +13,13 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
 
+import util.Util;
+import circuit.auxiliary.LongElement;
 import circuit.operations.WireLabelInstruction;
 import circuit.operations.WireLabelInstruction.LabelType;
 import circuit.structure.CircuitGenerator;
 import circuit.structure.Wire;
+import circuit.structure.WireArray;
 
 public class CircuitEvaluator {
 
@@ -32,17 +35,39 @@ public class CircuitEvaluator {
 	public void setWireValue(Wire w, BigInteger v) {
 		valueAssignment[w.getWireId()] = v;
 	}
-	
+
 	public BigInteger getWireValue(Wire w) {
-		return valueAssignment[w.getWireId()];
+		BigInteger v = valueAssignment[w.getWireId()];
+		if (v == null) {
+			WireArray bits = w.getBitWiresIfExistAlready();
+			if (bits != null) {
+				BigInteger sum = BigInteger.ZERO;
+				for (int i = 0; i < bits.size(); i++) {
+					sum = sum.add(valueAssignment[bits.get(i).getWireId()]
+							.shiftLeft(i));
+				}
+				v = sum;
+			}
+		}
+		return v;
 	}
 
 	public BigInteger[] getWiresValues(Wire[] w) {
 		BigInteger[] values = new BigInteger[w.length];
-		for(int i = 0; i < w.length; i++){
+		for (int i = 0; i < w.length; i++) {
 			values[i] = getWireValue(w[i]);
 		}
 		return values;
+	}
+
+	public BigInteger getWireValue(LongElement e, int bitwidthPerChunk) {
+		return Util.combine(valueAssignment, e.getArray(), bitwidthPerChunk);
+	}
+
+	public void setWireValue(LongElement e, BigInteger value,
+			int bitwidthPerChunk) {
+		Wire[] array = e.getArray();
+		setWireValue(array, Util.split(value, bitwidthPerChunk));
 	}
 
 	public void setWireValue(Wire wire, long v) {
@@ -53,12 +78,17 @@ public class CircuitEvaluator {
 		for (int i = 0; i < v.length; i++) {
 			setWireValue(wires[i], v[i]);
 		}
+		for (int i = v.length; i < wires.length; i++) {
+			setWireValue(wires[i], BigInteger.ZERO);
+		}
 	}
 
 	public void evaluate() {
-		
-		System.out.println("Running Circuit Evaluator for < " + circuitGenerator.getName() + " >");
-		LinkedHashMap<Instruction, Instruction> evalSequence = circuitGenerator.getEvaluationQueue();
+
+		System.out.println("Running Circuit Evaluator for < "
+				+ circuitGenerator.getName() + " >");
+		LinkedHashMap<Instruction, Instruction> evalSequence = circuitGenerator
+				.getEvaluationQueue();
 
 		for (Instruction e : evalSequence.keySet()) {
 			e.evaluate(this);
@@ -70,13 +100,15 @@ public class CircuitEvaluator {
 				throw new RuntimeException("Wire#" + i + "is without value");
 			}
 		}
-		System.out.println("Circuit Evaluation Done for < " + circuitGenerator.getName() + " >\n\n");
+		System.out.println("Circuit Evaluation Done for < "
+				+ circuitGenerator.getName() + " >\n\n");
 
 	}
 
 	public void writeInputFile() {
 		try {
-			LinkedHashMap<Instruction, Instruction> evalSequence = circuitGenerator.getEvaluationQueue();
+			LinkedHashMap<Instruction, Instruction> evalSequence = circuitGenerator
+					.getEvaluationQueue();
 
 			PrintWriter printWriter = new PrintWriter(
 					circuitGenerator.getName() + ".in");
@@ -96,14 +128,14 @@ public class CircuitEvaluator {
 		}
 	}
 
-	
 	/**
 	 * An independent old method for testing.
+	 * 
 	 * @param circuitFilePath
 	 * @param inFilePath
 	 * @throws Exception
 	 */
-	
+
 	public static void eval(String circuitFilePath, String inFilePath)
 			throws Exception {
 

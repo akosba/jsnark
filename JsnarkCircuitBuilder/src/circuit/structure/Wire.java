@@ -197,6 +197,10 @@ public class Wire {
 			return bitWires.adjustLength(bitwidth);
 		}
 	}
+	
+	public WireArray getBitWiresIfExistAlready(){
+		return getBitWires();
+	}
 
 	protected WireArray forceSplit(int bitwidth, String... desc) {
 		Wire[] ws = new VariableBitWire[bitwidth];

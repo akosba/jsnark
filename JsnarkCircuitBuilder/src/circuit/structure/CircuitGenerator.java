@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import circuit.auxiliary.LongElement;
 import circuit.config.Config;
 import circuit.eval.CircuitEvaluator;
 import circuit.eval.Instruction;
@@ -116,6 +117,28 @@ public abstract class CircuitGenerator {
 		return list;
 	}
 
+	public LongElement createLongElementInput(int totalBitwidth,  String... desc){
+		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.BITWIDTH_PER_CHUNK);
+		Wire[] w = createInputWireArray(numWires, desc);
+		int[] bitwidths = new int[numWires];
+		Arrays.fill(bitwidths, LongElement.BITWIDTH_PER_CHUNK);
+		if (numWires * LongElement.BITWIDTH_PER_CHUNK != totalBitwidth) {
+			bitwidths[numWires - 1] = totalBitwidth % LongElement.BITWIDTH_PER_CHUNK;
+		}
+		return new LongElement(w, bitwidths);	
+	}
+	
+	public LongElement createLongElementProverWitness(int totalBitwidth, String... desc){
+		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.BITWIDTH_PER_CHUNK);
+		Wire[] w = createProverWitnessWireArray(numWires, desc);
+		int[] bitwidths = new int[numWires];
+		Arrays.fill(bitwidths, LongElement.BITWIDTH_PER_CHUNK);
+		if (numWires * LongElement.BITWIDTH_PER_CHUNK != totalBitwidth) {
+			bitwidths[numWires - 1] = totalBitwidth % LongElement.BITWIDTH_PER_CHUNK;
+		}
+		return new LongElement(w, bitwidths);	
+	}
+	
 	public Wire createProverWitnessWire(String... desc) {
 
 		Wire wire = new VariableWire(currentWireId++);
