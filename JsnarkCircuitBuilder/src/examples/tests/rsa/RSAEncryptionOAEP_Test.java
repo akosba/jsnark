@@ -67,12 +67,19 @@ public class RSAEncryptionOAEP_Test extends TestCase {
 
 				@Override
 				protected void buildCircuit() {
-					inputMessage = createInputWireArray(plainTextLength);
+					inputMessage = createProverWitnessWireArray(plainTextLength); // in bytes
+					for(int i = 0; i < plainTextLength;i++){
+						inputMessage[i].restrictBitLength(8);
+					}
+					
 					rsaModulus = createLongElementInput(rsaKeyLength);
 					seed = createProverWitnessWireArray(RSAEncryptionOAEPGadget.SHA256_DIGEST_LENGTH);
 					rsaEncryptionOAEPGadget = new RSAEncryptionOAEPGadget(
 							rsaModulus, inputMessage, seed, rsaKeyLength);
 
+					// since seed is a witness
+					rsaEncryptionOAEPGadget.checkSeedCompliance();
+					
 					Wire[] cipherTextInBytes = rsaEncryptionOAEPGadget
 							.getOutputWires(); // in bytes
 

@@ -71,12 +71,6 @@ public class RSAEncryptionV1_5_Gadget extends Gadget {
 
 	private void buildCircuit() {
 
-		// assert the randomness vector has non-zero bytes
-		for (int i = 0; i < randomness.length; i++) {
-			// verify that each element has a multiplicative inverse
-			new FieldDivisionGadget(generator.getOneWire(), randomness[i]);
-		}
-
 		int lengthInBytes = rsaKeyBitLength / 8;
 		Wire[] paddedPlainText = new Wire[lengthInBytes];
 		for (int i = 0; i < plainText.length; i++) {
@@ -94,8 +88,9 @@ public class RSAEncryptionV1_5_Gadget extends Gadget {
 		 * padddedPlainText array to a long element. Two ways to do that.
 		 */
 		// 1. safest method:
-		// WireArray allBits = new WireArray(paddedPlainText).getBits(8);
-		// LongElement paddedMsg = new LongElement(allBits);
+//		 WireArray allBits = new WireArray(paddedPlainText).getBits(8);
+//		 LongElement paddedMsg = new LongElement(allBits);
+
 
 		// 2. Make multiple long integer constant multiplications (need to be
 		// done carefully)
@@ -107,11 +102,8 @@ public class RSAEncryptionV1_5_Gadget extends Gadget {
 					BigInteger.ONE.shiftLeft(8 * i),
 					LongElement.BITWIDTH_PER_CHUNK));
 			paddedMsg = paddedMsg.add(e.mul(c));
-			// generator.addDebugInstruction(paddedPlainText[i],
-			// " plain at iter " + i);
-			// generator.addDebugInstruction(tmp.getArray(), " tmp at iter " +
-			// i);
 		}
+		
 		LongElement s = paddedMsg;
 		for (int i = 0; i < 16; i++) {
 			s = s.mul(s);
@@ -124,6 +116,16 @@ public class RSAEncryptionV1_5_Gadget extends Gadget {
 		ciphertext = s.getBits(rsaKeyBitLength).packBitsIntoWords(8);
 	}
 
+	
+	public void checkRandomnessCompliance(){
+		// assert the randomness vector has non-zero bytes
+		for (int i = 0; i < randomness.length; i++) {
+			randomness[i].restrictBitLength(8);
+			// verify that each element has a multiplicative inverse
+			new FieldDivisionGadget(generator.getOneWire(), randomness[i]);
+		}
+	}
+	
 	@Override
 	public Wire[] getOutputWires() {
 		return ciphertext;

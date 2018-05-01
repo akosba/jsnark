@@ -45,10 +45,16 @@ public class RSAEncryptionCircuitGenerator extends CircuitGenerator {
 	@Override
 	protected void buildCircuit() {
 
-		inputMessage = createInputWireArray(plainTextLength);
+		inputMessage = createProverWitnessWireArray(plainTextLength); // in bytes
+		for(int i = 0; i < plainTextLength;i++){
+			inputMessage[i].restrictBitLength(8);
+		}
+		
 		randomness = createProverWitnessWireArray(RSAEncryptionV1_5_Gadget
 				.getExpectedRandomnessLength(rsaKeyLength, plainTextLength));
+		// constraints on the randomness vector are checked later.
 
+		
 		/**
 		 * Since an RSA modulus take many wires to present, it could increase
 		 * the size of verification key if we divide it into very small chunks,
@@ -74,6 +80,9 @@ public class RSAEncryptionCircuitGenerator extends CircuitGenerator {
 
 		rsaEncryptionV1_5_Gadget = new RSAEncryptionV1_5_Gadget(rsaModulus, inputMessage,
 				randomness, rsaKeyLength);
+				
+		// since the randomness vector is a witness in this example, verify any needed constraints
+		rsaEncryptionV1_5_Gadget.checkRandomnessCompliance();
 		
 		Wire[] cipherTextInBytes = rsaEncryptionV1_5_Gadget.getOutputWires(); // in bytes
 		

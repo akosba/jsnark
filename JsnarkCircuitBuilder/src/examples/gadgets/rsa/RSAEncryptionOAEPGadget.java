@@ -139,6 +139,14 @@ public class RSAEncryptionOAEPGadget extends Gadget {
 		ciphertext = s.getBits(rsaKeyBitLength).packBitsIntoWords(8);
 	}
 
+	public void checkSeedCompliance() {
+		for (int i = 0; i < seed.length; i++) {
+			// Verify that the seed wires are bytes
+			// This is also checked already by the sha256 gadget in the mgf1 calls, but added here for clarity
+			seed[i].restrictBitLength(8);
+		}
+	}
+	
 	private Wire[] mgf1(Wire[] in, int length) {
 
 		ArrayList<Wire> mgfOutputList = new ArrayList<Wire>();
@@ -159,7 +167,7 @@ public class RSAEncryptionOAEPGadget extends Gadget {
 					.packBitsIntoWords(8);
 			// reverse the byte array representation of each word of the digest
 			// to
-			// be compatiable with the endianess
+			// be compatible with the endianess
 			for (int j = 0; j < 8; j++) {
 				Wire tmp = msgHashBytes[4 * j];
 				msgHashBytes[4 * j] = msgHashBytes[(4 * j + 3)];
@@ -180,4 +188,5 @@ public class RSAEncryptionOAEPGadget extends Gadget {
 	public Wire[] getOutputWires() {
 		return ciphertext;
 	}
+
 }

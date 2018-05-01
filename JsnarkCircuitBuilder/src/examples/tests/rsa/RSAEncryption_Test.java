@@ -36,6 +36,7 @@ public class RSAEncryption_Test extends TestCase {
 	@Test
 	public void testEncryptionDifferentKeyLengths() throws Exception{
 
+		
 		String plainText = "abc";
 
 		// testing commonly used rsa key lengths
@@ -46,8 +47,7 @@ public class RSAEncryption_Test extends TestCase {
 
 		for (int keySize : keySizeArray) {
 
-			final byte[] cipherTextBytes = new byte[keySize/8];
-			
+			final byte[] cipherTextBytes = new byte[keySize/8];			
 			SecureRandom random = new SecureRandom();
 			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 			keyGen.initialize(keySize, random);
@@ -69,13 +69,19 @@ public class RSAEncryption_Test extends TestCase {
 
 				@Override
 				protected void buildCircuit() {
-					inputMessage = createInputWireArray(plainTextLength);
+					inputMessage = createProverWitnessWireArray(plainTextLength); // in bytes
+					for(int i = 0; i < plainTextLength;i++){
+						inputMessage[i].restrictBitLength(8);
+					}
+					
 					rsaModulus = createLongElementInput(rsaKeyLength);
 					randomness = createProverWitnessWireArray(RSAEncryptionV1_5_Gadget
 							.getExpectedRandomnessLength(rsaKeyLength, plainTextLength));
 					rsaEncryptionV1_5_Gadget = new RSAEncryptionV1_5_Gadget(rsaModulus, inputMessage,
 							randomness, rsaKeyLength);
 					
+					// since randomness is a witness
+					rsaEncryptionV1_5_Gadget.checkRandomnessCompliance();
 					Wire[] cipherTextInBytes = rsaEncryptionV1_5_Gadget.getOutputWires(); // in bytes
 					
 					// group every 8 bytes together
