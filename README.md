@@ -62,7 +62,7 @@ To compile the JsnarkCircuitBuilder project via command line,
     $ mkdir -p bin
     $ javac -d bin -cp /usr/share/java/junit4.jar:bcprov-jdk15on-159.jar  $(find ./src/* | grep ".java$")
 
-The classpathes of junit4 and bcprov-jdk15on-159.jar may need to be adapted accordingly, in case the jars are located elsewhere. The above command assumes that  bcprov-jdk15on-159.jar was moved to the JsnarkCircuitBuilder directory.
+The classpaths of junit4 and bcprov-jdk15on-159.jar may need to be adapted in case the jars are located elsewhere. The above command assumes that  bcprov-jdk15on-159.jar was moved to the JsnarkCircuitBuilder directory.
 
 Before running the following, make sure the `PATH_TO_LIBSNARK_EXEC` property in `config.properties` points to the path of the `run_libsnark` executable. 
 
