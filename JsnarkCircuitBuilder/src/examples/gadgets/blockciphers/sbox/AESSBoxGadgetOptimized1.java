@@ -154,7 +154,7 @@ public class AESSBoxGadgetOptimized1 extends Gadget {
 	protected void buildCircuit() {
 
 		output = generator.createProverWitnessWire();
-		input.getBitWires(8);
+		input.restrictBitLength(8);
 		generator.specifyProverWitnessComputation(new Instruction() {
 
 			@Override

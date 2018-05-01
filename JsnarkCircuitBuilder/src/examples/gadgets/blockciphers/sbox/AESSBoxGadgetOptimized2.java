@@ -171,6 +171,7 @@ public class AESSBoxGadgetOptimized2 extends Gadget {
 						BigInteger.valueOf(SBox[value.intValue()]));
 			}
 		});
+		output.restrictBitLength(8); // Added for clarity. We are getting the bits below anyway. (won't result in extra constraints)
 		Wire[] bitsIn = input.getBitWires(8).asArray();
 		Wire[] bitsOut = output.getBitWires(8).asArray();
 		Wire[] vars = new Wire[16];

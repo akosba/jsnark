@@ -56,11 +56,12 @@ public class LongElement {
 		} else {
 			BigInteger maxChunkVal = Util.computeMaxValue(BITWIDTH_PER_CHUNK);
 			BigInteger maxLastChunkVal = maxChunkVal;
-			if (bits.size() % BITWIDTH_PER_CHUNK != 0) {
-				bits = bits.adjustLength(bits.size()
-						+ (BITWIDTH_PER_CHUNK - bits.size()
+			int size= bits.size();
+			if (size % BITWIDTH_PER_CHUNK != 0) {
+				bits = bits.adjustLength(size
+						+ (BITWIDTH_PER_CHUNK - size
 								% BITWIDTH_PER_CHUNK));
-				maxLastChunkVal = Util.computeMaxValue(bits.size()
+				maxLastChunkVal = Util.computeMaxValue(size
 						% BITWIDTH_PER_CHUNK);
 			}
 			this.array = new Wire[bits.size() / BITWIDTH_PER_CHUNK];
@@ -298,7 +299,6 @@ public class LongElement {
 								.multiply(o.currentMaxValues[j]));
 			}
 		}
-
 		return new LongElement(result, newMaxValues);
 	}
 
@@ -541,9 +541,13 @@ public class LongElement {
 //		return new LongElement(result, newMaxValues);
 //	}
 
+	// This asserts that the current bitwidth conditions are satisfied
 	public void forceBitwidth() {
+		if(!isAligned()){
+			System.err.println("Warning [forceBitwidth()]: Might want to align before checking bitwidth constraints");
+		}
 		for (int i = 0; i < array.length; i++) {
-			array[i].getBitWires(currentBitwidth[i]);
+			array[i].restrictBitLength(currentBitwidth[i]);
 		}
 	}
 

@@ -43,7 +43,7 @@ public class AESSBoxComputeGadget extends Gadget {
 			}
 		});
 
-		inverse.getBitWires(8);
+		inverse.restrictBitLength(8);
 		Wire v = gmul(input, inverse);
 		generator.addAssertion(v.sub(generator.getOneWire()),
 				input.add(inverse), generator.getZeroWire());
