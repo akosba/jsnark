@@ -53,10 +53,19 @@ public class Wire {
 		packIfNeeded(desc);
 		if (b.equals(BigInteger.ONE))
 			return this;
+		if (b.equals(BigInteger.ZERO))
+			return generator.zeroWire;
 		Wire out = new LinearCombinationWire(generator.currentWireId++);
 		Instruction op = new ConstMulBasicOp(this, out, b, desc);
-		generator.addToEvaluationQueue(op);
-		return out;
+//		generator.addToEvaluationQueue(op);
+		Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+		if(cachedOutputs == null){
+			return out;
+		}
+		else{
+			generator.currentWireId--;
+			return cachedOutputs[0];
+		}
 	}
 
 	public Wire mul(long l, String... desc) {
@@ -127,8 +136,14 @@ public class Wire {
 		Wire out1 = new Wire(generator.currentWireId++);
 		Wire out2 = new VariableBitWire(generator.currentWireId++);
 		Instruction op = new NonZeroCheckBasicOp(this, out1, out2, desc);
-		generator.addToEvaluationQueue(op);
-		return out2;
+		Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+		if(cachedOutputs == null){
+			return out2;
+		}
+		else{
+			generator.currentWireId-=2;
+			return cachedOutputs[1];
+		}		
 	}
 
 	public Wire invAsBit(String... desc) {
@@ -208,9 +223,18 @@ public class Wire {
 			ws[i] = new VariableBitWire(generator.currentWireId++);
 		}
 		Instruction op = new SplitBasicOp(this, ws, desc);
-		generator.addToEvaluationQueue(op);
-		WireArray bitWires = new WireArray(ws);
-		return bitWires;
+		Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+		
+		if(cachedOutputs == null){
+			WireArray bitWires = new WireArray(ws);
+			return bitWires;
+		}
+		else{
+			generator.currentWireId-=bitwidth;
+			return new WireArray(cachedOutputs).adjustLength(bitwidth);
+		}		
+
+
 	}
 
 	public void restrictBitLength(int bitWidth, String... desc) {
@@ -480,8 +504,36 @@ public class Wire {
 				throw new RuntimeException("A Pack operation is tried on a wire that has no bits.");
 			}
 			wireId = generator.currentWireId++;
-			Instruction op = new PackBasicOp(bits.array, this, desc);
-			generator.addToEvaluationQueue(op);
+//			Instruction op = new PackBasicOp(bits.array, this, desc);
+//			generator.addToEvaluationQueue(op);
+			
+			Instruction op = new PackBasicOp(bits.array, this,  desc);
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+			
+			if(cachedOutputs != null){
+				generator.currentWireId--;
+				wireId = cachedOutputs[0].getWireId();
+			}		
+
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return wireId;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj){
+			return true;
+		}
+		else if(!(obj instanceof Wire)){
+			return false;
+		}
+		else{
+			Wire w = (Wire)obj;
+			return w.wireId == wireId && w.generator==generator;
 		}
 	}
 

@@ -25,5 +25,18 @@ public class NonZeroCheckBasicOp extends BasicOp {
 		}
 		assignment[outputs[0].getWireId()] = BigInteger.ZERO; // a dummy value
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj)
+			return true;
+		if (!(obj instanceof NonZeroCheckBasicOp)) {
+			return false;
+		}
+		NonZeroCheckBasicOp op = (NonZeroCheckBasicOp) obj;
+		return inputs[0].equals(op.inputs[0]);
+
+	}
 
 }

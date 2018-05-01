@@ -36,4 +36,22 @@ public class AssertBasicOp extends BasicOp {
 	protected void checkOutputs(BigInteger[] assignment) {
 		// do nothing
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj)
+			return true;
+		if (!(obj instanceof AssertBasicOp)) {
+			return false;
+		}
+		AssertBasicOp op = (AssertBasicOp) obj;
+
+		boolean check1 = inputs[0].equals(op.inputs[0])
+				&& inputs[1].equals(op.inputs[1]);
+		boolean check2 = inputs[1].equals(op.inputs[0])
+				&& inputs[0].equals(op.inputs[1]);
+		return (check1 || check2) && outputs[0].equals(op.outputs[0]);
+
+	}
 }

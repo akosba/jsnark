@@ -332,7 +332,7 @@ public abstract class CircuitGenerator {
 			numOfConstraints += ((BasicOp) e).getNumMulGates();
 		}
 		evaluationQueue.put(e, e);
-		return null;
+		return null;  // returning null means we have not seen this instruction before
 	}
 
 	public void printState(String message) {
@@ -388,7 +388,8 @@ public abstract class CircuitGenerator {
 	}
 
 	public void addEqualityAssertion(Wire w1, Wire w2, String... desc) {
-		addAssertion(w1, oneWire, w2, desc);
+		if(!w1.equals(w2))
+			addAssertion(w1, oneWire, w2, desc);
 	}
 
 	public void addEqualityAssertion(Wire w1, BigInteger b, String... desc) {

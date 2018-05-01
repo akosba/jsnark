@@ -40,4 +40,16 @@ public class SplitBasicOp extends BasicOp {
 		}
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj)
+			return true;
+		if (!(obj instanceof SplitBasicOp)) {
+			return false;
+		}
+		SplitBasicOp op = (SplitBasicOp) obj;
+		return inputs[0].equals(op.inputs[0]) && outputs.length == op.outputs.length;
+
+	}
 }

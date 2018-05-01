@@ -36,5 +36,18 @@ public class ConstMulBasicOp extends BasicOp {
 		}
 		assignment[outputs[0].getWireId()] = result;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj)
+			return true;
+		if (!(obj instanceof ConstMulBasicOp)) {
+			return false;
+		}
+		ConstMulBasicOp op = (ConstMulBasicOp) obj;
+		return inputs[0].equals(op.inputs[0]) && constInteger.equals(constInteger);
+
+	}
 
 }

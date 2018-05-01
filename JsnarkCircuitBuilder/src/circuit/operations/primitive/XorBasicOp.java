@@ -35,5 +35,22 @@ public class XorBasicOp extends BasicOp {
 				assignment[inputs[1].getWireId()]);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj)
+			return true;
+		if (!(obj instanceof XorBasicOp)) {
+			return false;
+		}
+		XorBasicOp op = (XorBasicOp) obj;
+
+		boolean check1 = inputs[0].equals(op.inputs[0])
+				&& inputs[1].equals(op.inputs[1]);
+		boolean check2 = inputs[1].equals(op.inputs[0])
+				&& inputs[0].equals(op.inputs[1]);
+		return check1 || check2;
+
+	}
 
 }
