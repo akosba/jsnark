@@ -768,26 +768,30 @@ public class LongElement {
 			throw new IllegalArgumentException("input chunks are not aligned");
 		}
 
+		
+		Wire[] a1 = this.getArray();
+		Wire[] a2 = other.getArray();
+		final int length = Math.max(a1.length, a2.length);
+		final Wire[] paddedA1 = Util.padWireArray(a1, length, generator.getZeroWire());
+		final Wire[] paddedA2 = Util.padWireArray(a2, length, generator.getZeroWire());
+		
 		/*
 		 * Instead of doing the comparison naively (which will involve all the
 		 * bits) let the prover help us by pointing to the first chunk in the
 		 * other element that is more than the corresponding chunk in this
 		 * element.
 		 */
-		Wire[] helperBits = generator.createProverWitnessWireArray(other
-				.getArray().length);
+		Wire[] helperBits = generator.createProverWitnessWireArray(length);
 		// set the value of the helperBits outside the circuits
 
 		generator.specifyProverWitnessComputation(new Instruction() {
 			@Override
 			public void evaluate(CircuitEvaluator evaluator) {
 
-				Wire[] otherArray = other.getArray();
-				Wire[] array = getArray();
 				boolean found = false;
-				for (int i = otherArray.length - 1; i >= 0; i--) {
-					BigInteger v1 = evaluator.getWireValue(array[i]);
-					BigInteger v2 = evaluator.getWireValue(otherArray[i]);
+				for (int i = length - 1; i >= 0; i--) {
+					BigInteger v1 = evaluator.getWireValue(paddedA1[i]);
+					BigInteger v2 = evaluator.getWireValue(paddedA2[i]);
 
 					boolean check = v2.compareTo(v1) > 0 && !found;
 					evaluator.setWireValue(helperBits[i],
@@ -809,11 +813,10 @@ public class LongElement {
 		Wire chunk1 = generator.getZeroWire();
 		Wire chunk2 = generator.getZeroWire();
 
-		Wire[] otherArray = other.getArray();
-		Wire[] array = getArray();
+
 		for (int i = 0; i < helperBits.length; i++) {
-			chunk1 = chunk1.add(array[i].mul(helperBits[i]));
-			chunk2 = chunk2.add(otherArray[i].mul(helperBits[i]));
+			chunk1 = chunk1.add(paddedA1[i].mul(helperBits[i]));
+			chunk2 = chunk2.add(paddedA2[i].mul(helperBits[i]));
 
 		}
 		generator.addOneAssertion(chunk1.isLessThan(chunk2,
@@ -824,8 +827,8 @@ public class LongElement {
 		helperBits2[0] = generator.getZeroWire();
 		for (int i = 1; i < helperBits.length; i++) {
 			helperBits2[i] = helperBits2[i - 1].add(helperBits[i - 1]);
-			generator.addZeroAssertion(helperBits2[i].mul(array[i]
-					.sub(otherArray[i])));
+			generator.addZeroAssertion(helperBits2[i].mul(paddedA1[i]
+					.sub(paddedA2[i])));
 		}
 
 		// no checks needed for the less significant chunks

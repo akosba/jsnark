@@ -200,4 +200,20 @@ public class Util {
 		}
 		return chunks;
 	}
+	
+	public static Wire[] padWireArray(Wire[] a, int length, Wire p) {
+		if (a.length == length) {
+			return a;
+		} else if (a.length > length) {
+			System.err.println("No padding needed!");
+			return a;
+		} else {
+			Wire[] newArray = new Wire[length];
+			System.arraycopy(a, 0, newArray, 0, a.length);
+			for (int k = a.length; k < length; k++) {
+				newArray[k] = p;
+			}
+			return newArray;
+		}
+	}
 }
