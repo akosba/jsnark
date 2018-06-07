@@ -11,10 +11,11 @@ public class NonZeroCheckBasicOp extends BasicOp {
 
 	public NonZeroCheckBasicOp(Wire w, Wire out1, Wire out2 , String...desc) {
 		super(new Wire[] { w }, new Wire[]{out1, out2}, desc);
-		opcode = "zerop";
-		numMulGates = 2;
 	}
 
+	public String getOpcode(){
+		return "zerop";
+	}
 	@Override
 	public void compute(BigInteger[] assignment) {
 
@@ -37,6 +38,11 @@ public class NonZeroCheckBasicOp extends BasicOp {
 		NonZeroCheckBasicOp op = (NonZeroCheckBasicOp) obj;
 		return inputs[0].equals(op.inputs[0]);
 
+	}
+
+	@Override
+	public int getNumMulGates() {
+		return 2;
 	}
 
 }

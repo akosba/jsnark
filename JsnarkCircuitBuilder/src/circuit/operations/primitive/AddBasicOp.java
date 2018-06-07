@@ -12,9 +12,12 @@ public class AddBasicOp extends BasicOp {
 
 	public AddBasicOp(Wire[] ws, Wire output, String...desc) {
 		super(ws, new Wire[] { output }, desc);
-		opcode = "add";
 	}
 
+	public String getOpcode(){
+		return "add";
+	}
+	
 	@Override
 	public void compute(BigInteger[] assignment) {
 		BigInteger s = BigInteger.ZERO;
@@ -50,6 +53,11 @@ public class AddBasicOp extends BasicOp {
 			}
 			return check;
 		}
+	}
+
+	@Override
+	public int getNumMulGates() {
+		return 0;
 	}
 
 }

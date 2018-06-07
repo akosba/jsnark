@@ -12,10 +12,11 @@ public class XorBasicOp extends BasicOp {
 
 	public XorBasicOp(Wire w1, Wire w2, Wire output, String...desc) {
 		super(new Wire[] { w1, w2 }, new Wire[] { output }, desc);
-		opcode = "xor";
-		numMulGates = 1;
 	}
 
+	public String getOpcode(){
+		return "xor";
+	}
 
 	public void checkInputs(BigInteger[] assignment) {
 		super.checkInputs(assignment);
@@ -52,5 +53,10 @@ public class XorBasicOp extends BasicOp {
 		return check1 || check2;
 
 	}
-
+	
+	@Override
+	public int getNumMulGates() {
+		return 1;
+	}
+	
 }

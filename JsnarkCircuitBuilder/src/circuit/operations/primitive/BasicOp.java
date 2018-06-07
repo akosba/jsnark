@@ -12,11 +12,9 @@ import circuit.structure.Wire;
 
 public abstract class BasicOp implements Instruction {
 
-	protected String opcode;
 	protected Wire[] inputs;
 	protected Wire[] outputs;
 	protected String desc;
-	protected int numMulGates;
 
 	public BasicOp(Wire[] inputs, Wire[] outputs, String... desc) {
 		this.inputs = inputs;
@@ -45,9 +43,6 @@ public abstract class BasicOp implements Instruction {
 
 	}
 
-	public int getNumMulGates() {
-		return numMulGates;
-	}
 
 	public BasicOp(Wire[] inputs, Wire[] outputs) {
 		this(inputs, outputs, "");
@@ -80,8 +75,11 @@ public abstract class BasicOp implements Instruction {
 		}
 	}
 
+	public abstract String getOpcode();
+	public abstract int getNumMulGates();
+	
 	public String toString() {
-		return opcode + " in " + inputs.length + " <" + Util.arrayToString(inputs, " ") + "> out " + outputs.length
+		return getOpcode() + " in " + inputs.length + " <" + Util.arrayToString(inputs, " ") + "> out " + outputs.length
 				+ " <" + Util.arrayToString(outputs, " ") + ">" + (desc.length() > 0 ? (" \t\t# " + desc) : "");
 	}
 
@@ -100,7 +98,7 @@ public abstract class BasicOp implements Instruction {
 	@Override
 	public int hashCode() {
 
-		int h = opcode.hashCode();
+		int h = getOpcode().hashCode();
 		for(Wire in:inputs){
 			h+=in.hashCode();
 		}

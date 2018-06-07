@@ -12,10 +12,8 @@ public class AssertBasicOp extends BasicOp {
 
 	public AssertBasicOp(Wire w1, Wire w2, Wire output, String...desc) {
 		super(new Wire[] { w1, w2 }, new Wire[] { output }, desc);
-		opcode = "assert";
-		numMulGates = 1;
 	}
-
+	
 	@Override
 	protected void compute(BigInteger[] assignment) {
 		BigInteger leftSide = assignment[inputs[0].getWireId()].multiply(
@@ -37,6 +35,10 @@ public class AssertBasicOp extends BasicOp {
 		// do nothing
 	}
 	
+	public String getOpcode(){
+		return "assert";
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 
@@ -54,4 +56,10 @@ public class AssertBasicOp extends BasicOp {
 		return (check1 || check2) && outputs[0].equals(op.outputs[0]);
 
 	}
+	
+	@Override
+	public int getNumMulGates() {
+		return 1;
+	}
+
 }

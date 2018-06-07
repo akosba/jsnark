@@ -13,10 +13,12 @@ public class PackBasicOp extends BasicOp {
 
 	public PackBasicOp(Wire[] inBits, Wire out, String... desc) {
 		super(inBits, new Wire[] { out }, desc);
-		opcode = "pack";
-		numMulGates = 1;
 	}
 
+	public String getOpcode(){
+		return "pack";
+	}
+	
 	@Override
 	public void checkInputs(BigInteger[] assignment) {
 		super.checkInputs(assignment);
@@ -60,5 +62,12 @@ public class PackBasicOp extends BasicOp {
 		}
 		return check;
 	}
+	
+	@Override
+	public int getNumMulGates() {
+		// note that we can do in zero gates as well, but would require modifying our libsnark interface
+		return 1;
+	}
+
 
 }

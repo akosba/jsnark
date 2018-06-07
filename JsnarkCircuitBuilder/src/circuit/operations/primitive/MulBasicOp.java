@@ -12,10 +12,12 @@ public class MulBasicOp extends BasicOp {
 
 	public MulBasicOp(Wire w1, Wire w2, Wire output, String... desc) {
 		super(new Wire[] { w1, w2 }, new Wire[] { output }, desc);
-		opcode = "mul";
-		numMulGates = 1;
 	}
 
+	public String getOpcode(){
+		return "mul";
+	}
+	
 	@Override
 	public void compute(BigInteger[] assignment) {
 		BigInteger result = assignment[inputs[0].getWireId()]
@@ -43,5 +45,11 @@ public class MulBasicOp extends BasicOp {
 		return check1 || check2;
 
 	}
+	
+	@Override
+	public int getNumMulGates() {
+		return 1;
+	}
+
 
 }
