@@ -72,7 +72,7 @@ To run a simple example, the following command can be used
 
 To run one of the JUnit tests available:
 
-    $ java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.SHA256_Test
+    $ java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.hash.SHA256_Test
 
 Some of the examples and tests will require bcprov-jdk15on-159.jar as well to be added to the classpath.	
 
