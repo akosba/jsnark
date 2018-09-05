@@ -369,6 +369,12 @@ public abstract class CircuitGenerator {
 				throw new RuntimeException("Assertion failed on the provided constant wires .. ");
 			}
 		} else {
+			if(w1 instanceof VariableWire)
+				w1.packIfNeeded();
+			if(w2 instanceof VariableWire)
+				w2.packIfNeeded();
+			if(w3 instanceof VariableWire)
+				w3.packIfNeeded();
 			Instruction op = new AssertBasicOp(w1, w2, w3, desc);
 			addToEvaluationQueue(op);
 		}
