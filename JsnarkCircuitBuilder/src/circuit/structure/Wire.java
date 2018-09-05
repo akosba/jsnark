@@ -113,6 +113,7 @@ public class Wire {
 	}
 
 	public Wire sub(Wire w, String... desc) {
+		packIfNeeded(desc);
 		w.packIfNeeded(desc);
 		Wire neg = w.mul(-1, desc);
 		return add(neg, desc);
