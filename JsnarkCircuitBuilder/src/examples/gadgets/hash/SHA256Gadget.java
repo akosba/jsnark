@@ -244,8 +244,8 @@ public class SHA256Gadget extends Gadget {
 			int totalNumberOfBits = numBlocks * 512;
 			preparedInputBits = new Wire[totalNumberOfBits];
 			Arrays.fill(preparedInputBits, generator.getZeroWire());
-			System.arraycopy(bits, 0, preparedInputBits, 0, bits.length);
-			preparedInputBits[bits.length + 7] = generator.getOneWire();
+			System.arraycopy(bits, 0, preparedInputBits, 0, totalLengthInBytes * 8);
+			preparedInputBits[totalLengthInBytes * 8 + 7] = generator.getOneWire();
 			System.arraycopy(lengthBits, 0, preparedInputBits, preparedInputBits.length - 64, 64);
 		} else {
 			preparedInputBits = bits;
