@@ -1,14 +1,17 @@
-##jsnark
+## jsnark
 
 This is a Java library for building circuits for preprocessing zk-SNARKs. The library uses libsnark as a backend (https://github.com/scipr-lab/libsnark), and can integrate circuits produced by the Pinocchio compiler (https://vc.codeplex.com/SourceControl/latest) when needed by the programmer. The code consists of two main parts:
 - `JsnarkCircuitBuilder`: A Java project that has a Gadget library for building/augmenting circuits. (Check the `src/examples` package)
 - `libsnark/src/interface`: A C++ interface to libsnark which accepts circuits produced by either the circuit builder or by Pinocchio's compiler directly.
 
+__Update__: The library now has several cryptographic gadgets used in earlier work ([Hawk](https://eprint.iacr.org/2015/675.pdf) and [C0C0](https://eprint.iacr.org/2015/1093.pdf)). Some of the gadgets like RSA and AES were improved by techniques from xjsnark (to appear). The gadgets can be found in [src/examples/gadgets](https://github.com/akosba/jsnark/tree/master/JsnarkCircuitBuilder/src/examples/gadgets).
+
 ### Prerequisites
 
-- Libsnark prerequisites.
-- JDK 8. 
-- Junit 4.
+- Libsnark prerequisites
+- JDK 8
+- Junit 4
+- BouncyCastle library
 
 For Ubuntu 14.04, the following can be done to install the above:
 
@@ -31,6 +34,10 @@ Verify the installed version by `java -version`. In case it is not 1.8 or later,
 - To install Junit4: 
 
 	`$ sudo apt-get install junit4`
+	
+- To download BouncyCastle:
+
+	`$ wget https://www.bouncycastle.org/download/bcprov-jdk15on-159.jar`
 
 ### jsnark Installation Instructions
 
@@ -49,13 +56,13 @@ The makefile has been modified to produce the one needed executable for the inte
 - Compile and test the JsnarkCircuitBuilder project as in the next section..
 
 ### Running and Testing JsnarkCircuitBuilder
-To compile the JsnarkCircuitBuilder project via command line:
+To compile the JsnarkCircuitBuilder project via command line,  
 
     $ cd JsnarkCircuitBuilder
     $ mkdir -p bin
-    $ javac -d bin -cp /usr/share/java/junit4.jar  $(find ./src/* | grep ".java$")
+    $ javac -d bin -cp /usr/share/java/junit4.jar:bcprov-jdk15on-159.jar  $(find ./src/* | grep ".java$")
 
-The classpath of junit4 may need to be adapted accordingly, in case the jar is located elsewhere.
+The classpaths of junit4 and bcprov-jdk15on-159.jar may need to be adapted in case the jars are located elsewhere. The above command assumes that  bcprov-jdk15on-159.jar was moved to the JsnarkCircuitBuilder directory.
 
 Before running the following, make sure the `PATH_TO_LIBSNARK_EXEC` property in `config.properties` points to the path of the `run_libsnark` executable. 
 
@@ -65,19 +72,21 @@ To run a simple example, the following command can be used
 
 To run one of the JUnit tests available:
 
-    $ java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.SHA256_Test
+    $ java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.hash.SHA256_Test
+
+Some of the examples and tests will require bcprov-jdk15on-159.jar as well to be added to the classpath.	
 
 Note: An IDE, e.g. Eclipse, or possibly the ant tool can be used instead to build and run the Java project more conveniently.
 
 
 ### Examples included
 
-- __Basic Circuit Example__: `SimpleExampleCircuitGenerator.java`. This shows a circuit that computes very simple expressions.
+- __Basic Circuit Example__: `SimpleCircuitGenerator.java`. This shows a circuit that computes very simple expressions.
 - __Basic Gadget Example__: `DotProductGadget.java`. This is a gadget for computing the dot product of two vectors. The gadget is used in `DotProductCircuitGenerator.java`.
 - __Gadgets with witness computations done outside the circuit__: `FieldDivisonGadget.java`, `ModGadget.java`. This way of writing circuits is useful when verification is more efficient than computation, and when the prover witness value can be inferred automatically in the circuit. Note the usage of `specifyProverWitnessComputation(..)`. This must be positioned before the steps where the witness is used. 
 - __SHA256 Gadget__: This is a manually-optimized SHA256 Gadget for variable-length input with a padding option. The code is written to be similar to how SHA256 is written in C, except for three main things: keeping track of bitwidth, manual optimizations for computation of ch and maj, and the explicit handling of overflows. Making use of jsnark's optimizations, our implementation for the SHA256 gadget costs __26196 constraints for one block__. If padding is applied within the block, the cost can be even lower. 
 - __Pinocchio Integration__: `PinocchioGadget.java` and `AugmentedAuctionCircuitGenerator.java`. The Pinocchio gadget can be used to use compiled circuits by the Pinocchio compiler as gagdets. `AugmentedAuctionCircuitGenerator.java` shows how to use a compiled Auction circuit by Pinocchio, and augment it with other manually-developed gadgets. This can help in the cases where the programmer needs to take care only of the bottleneck parts of the circuits. 
-- __Hybrid Encryption Example__: The circuit main file is in `EncryptionCircuitGenerator.java`. The circuit uses the gadgets defined in `examples/gadgets/encrypt/`, which are for key exchange (using field extension) and symmetric encryption using the speck cipher. Other variants will be added in the future.
+- __Hybrid Encryption Example__: The circuit main file is in `HybridEncryptionCircuitGenerator.java`. The circuit uses the gadgets defined in `examples/gadgets/diffieHellmanKeyExchange` and `examples/gadgets/blockciphers`, which are for key exchange (using field extension) and symmetric encryption using the speck cipher. Other variants will be added in the future.
 - __JUnit Tests__: Some JUnit tests are included for primitive operations, SHA-256 and the encryption gadgets. This can illustrate how to write gadgets and test them.
 
 ### Writing Circuits using jsnark

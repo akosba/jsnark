@@ -177,10 +177,43 @@ public class Util {
 	}
 
 	public static String padZeros(String s, int l) {
-		for (int i = 0; i < (l - s.length()); i++) {
-			s = "0" + s;
-		}
-		return s;
+		return String.format("%" + l + "s",s).replace(' ', '0');
 	}
 
+	public static BigInteger computeMaxValue(int numBits){
+		return BigIntStorage.getInstance().getBigInteger(
+				new BigInteger("2").pow(numBits).subtract(
+						BigInteger.ONE));
+	}
+	
+	public static BigInteger computeBound(int numBits){
+		return BigIntStorage.getInstance().getBigInteger(
+				new BigInteger("2").pow(numBits));
+	}
+	
+	public static BigInteger[] split(BigInteger x, int chunksize) {
+		int numChunks = (int)Math.ceil(x.bitLength()*1.0/chunksize);
+		BigInteger[] chunks = new BigInteger[numChunks];
+		BigInteger mask = new BigInteger("2").pow(chunksize).subtract(BigInteger.ONE);
+		for (int i = 0; i < numChunks; i++) {
+			chunks[i] = x.shiftRight(chunksize * i).and(mask);
+		}
+		return chunks;
+	}
+	
+	public static Wire[] padWireArray(Wire[] a, int length, Wire p) {
+		if (a.length == length) {
+			return a;
+		} else if (a.length > length) {
+			System.err.println("No padding needed!");
+			return a;
+		} else {
+			Wire[] newArray = new Wire[length];
+			System.arraycopy(a, 0, newArray, 0, a.length);
+			for (int k = a.length; k < length; k++) {
+				newArray[k] = p;
+			}
+			return newArray;
+		}
+	}
 }

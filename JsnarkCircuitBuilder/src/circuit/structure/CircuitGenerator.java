@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import circuit.auxiliary.LongElement;
 import circuit.config.Config;
 import circuit.eval.CircuitEvaluator;
 import circuit.eval.Instruction;
@@ -116,6 +117,28 @@ public abstract class CircuitGenerator {
 		return list;
 	}
 
+	public LongElement createLongElementInput(int totalBitwidth,  String... desc){
+		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.BITWIDTH_PER_CHUNK);
+		Wire[] w = createInputWireArray(numWires, desc);
+		int[] bitwidths = new int[numWires];
+		Arrays.fill(bitwidths, LongElement.BITWIDTH_PER_CHUNK);
+		if (numWires * LongElement.BITWIDTH_PER_CHUNK != totalBitwidth) {
+			bitwidths[numWires - 1] = totalBitwidth % LongElement.BITWIDTH_PER_CHUNK;
+		}
+		return new LongElement(w, bitwidths);	
+	}
+	
+	public LongElement createLongElementProverWitness(int totalBitwidth, String... desc){
+		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.BITWIDTH_PER_CHUNK);
+		Wire[] w = createProverWitnessWireArray(numWires, desc);
+		int[] bitwidths = new int[numWires];
+		Arrays.fill(bitwidths, LongElement.BITWIDTH_PER_CHUNK);
+		if (numWires * LongElement.BITWIDTH_PER_CHUNK != totalBitwidth) {
+			bitwidths[numWires - 1] = totalBitwidth % LongElement.BITWIDTH_PER_CHUNK;
+		}
+		return new LongElement(w, bitwidths);	
+	}
+	
 	public Wire createProverWitnessWire(String... desc) {
 
 		Wire wire = new VariableWire(currentWireId++);
@@ -309,7 +332,7 @@ public abstract class CircuitGenerator {
 			numOfConstraints += ((BasicOp) e).getNumMulGates();
 		}
 		evaluationQueue.put(e, e);
-		return null;
+		return null;  // returning null means we have not seen this instruction before
 	}
 
 	public void printState(String message) {
@@ -346,6 +369,12 @@ public abstract class CircuitGenerator {
 				throw new RuntimeException("Assertion failed on the provided constant wires .. ");
 			}
 		} else {
+			if(w1 instanceof VariableWire)
+				w1.packIfNeeded();
+			if(w2 instanceof VariableWire)
+				w2.packIfNeeded();
+			if(w3 instanceof VariableWire)
+				w3.packIfNeeded();
 			Instruction op = new AssertBasicOp(w1, w2, w3, desc);
 			addToEvaluationQueue(op);
 		}
@@ -365,7 +394,8 @@ public abstract class CircuitGenerator {
 	}
 
 	public void addEqualityAssertion(Wire w1, Wire w2, String... desc) {
-		addAssertion(w1, oneWire, w2, desc);
+		if(!w1.equals(w2))
+			addAssertion(w1, oneWire, w2, desc);
 	}
 
 	public void addEqualityAssertion(Wire w1, BigInteger b, String... desc) {

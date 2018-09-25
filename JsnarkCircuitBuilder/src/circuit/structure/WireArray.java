@@ -78,7 +78,15 @@ public class WireArray {
 		} else {
 			output = new LinearCombinationWire(generator.currentWireId++);
 			Instruction op = new AddBasicOp(array, output, desc);
-			generator.addToEvaluationQueue(op);
+//			generator.addToEvaluationQueue(op);
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+			if(cachedOutputs == null){
+				return output;
+			}
+			else{
+				generator.currentWireId--;
+				return cachedOutputs[0];
+			}	
 		}
 		return output;
 	}
@@ -247,8 +255,17 @@ public class WireArray {
 			Wire out = new VariableWire(generator.currentWireId++);
 			out.setBits(new WireArray(bits));
 			Instruction op = new PackBasicOp(bits, out, desc);
-			generator.addToEvaluationQueue(op);
-			return out;
+//			generator.addToEvaluationQueue(op);
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+//			System.out.println(cachedOutputs);
+			if(cachedOutputs == null){
+				return out;
+			}
+			else{
+				generator.currentWireId--;
+				return cachedOutputs[0];
+			}
+//			return out;
 		} else{
 			return generator.createConstantWire(sum, desc);
 

@@ -12,11 +12,12 @@ public class ORBasicOp extends BasicOp {
 
 	public ORBasicOp(Wire w1, Wire w2, Wire output, String...desc) {
 		super(new Wire[] { w1, w2 }, new Wire[] { output }, desc);
-		opcode = "or";
-		numMulGates = 1;
 	}
 
-
+	public String getOpcode(){
+		return "or";
+	}
+	
 	public void checkInputs(BigInteger[] assignment) {
 		super.checkInputs(assignment);
 		boolean check = Util.isBinary(assignment[inputs[0].getWireId()])
@@ -35,6 +36,26 @@ public class ORBasicOp extends BasicOp {
 				assignment[inputs[1].getWireId()]);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
 
+		if (this == obj)
+			return true;
+		if (!(obj instanceof ORBasicOp)) {
+			return false;
+		}
+		ORBasicOp op = (ORBasicOp) obj;
 
+		boolean check1 = inputs[0].equals(op.inputs[0])
+				&& inputs[1].equals(op.inputs[1]);
+		boolean check2 = inputs[1].equals(op.inputs[0])
+				&& inputs[0].equals(op.inputs[1]);
+		return check1 || check2;
+
+	}
+	
+	@Override
+	public int getNumMulGates() {
+		return 1;
+	}
 }

@@ -42,14 +42,24 @@ public class BitWire extends Wire {
 
 	public Wire mul(BigInteger b, String... desc) {
 		Wire out;
-		if (b.equals(BigInteger.ZERO) || b.equals(BigInteger.ONE)) {
-			out = new LinearCombinationBitWire(generator.currentWireId++);
-		} else {
+		if(b.equals(BigInteger.ZERO)){
+			return generator.zeroWire;
+		} else if(b.equals(BigInteger.ONE)){
+			return this;
+		} else{
 			out = new LinearCombinationWire(generator.currentWireId++);
+			Instruction op = new ConstMulBasicOp(this, out, b, desc);
+//			generator.addToEvaluationQueue(op);
+//			return out;			
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+			if(cachedOutputs == null){
+				return out;
+			}
+			else{
+				generator.currentWireId--;
+				return cachedOutputs[0];
+			}	
 		}
-		Instruction op = new ConstMulBasicOp(this, out, b, desc);
-		generator.addToEvaluationQueue(op);
-		return out;
 	}
 
 	public Wire invAsBit(String...desc) {
@@ -59,8 +69,15 @@ public class BitWire extends Wire {
 		Wire neg = this.mul(-1, desc);
 		Wire out = new LinearCombinationBitWire(generator.currentWireId++);
 		Instruction op = new AddBasicOp(new Wire[] { generator.oneWire, neg }, out, desc);
-		generator.addToEvaluationQueue(op);
-		return out;
+//		generator.addToEvaluationQueue(op);
+		Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+		if(cachedOutputs == null){
+			return out;
+		}
+		else{
+			generator.currentWireId--;
+			return cachedOutputs[0];
+		}		
 	}
 	
 	public Wire or(Wire w, String...desc) {

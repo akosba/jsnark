@@ -12,10 +12,12 @@ public class SplitBasicOp extends BasicOp {
 
 	public SplitBasicOp(Wire w, Wire[] outs, String...desc) {
 		super(new Wire[] { w }, outs, desc);
-		opcode = "split";
-		numMulGates = outs.length + 1;
 	}
 
+	public String getOpcode(){
+		return "split";
+	}
+	
 	protected void checkInputs(BigInteger[] assignment) {
 		super.checkInputs(assignment);
 		if (outputs.length < assignment[inputs[0].getWireId()].bitLength()) {
@@ -38,6 +40,24 @@ public class SplitBasicOp extends BasicOp {
 			assignment[outputs[i].getWireId()] = inVal.testBit(i) ? BigInteger.ONE
 					: BigInteger.ZERO;
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj)
+			return true;
+		if (!(obj instanceof SplitBasicOp)) {
+			return false;
+		}
+		SplitBasicOp op = (SplitBasicOp) obj;
+		return inputs[0].equals(op.inputs[0]) && outputs.length == op.outputs.length;
+
+	}
+	
+	@Override
+	public int getNumMulGates() {
+		return outputs.length + 1;
 	}
 
 }

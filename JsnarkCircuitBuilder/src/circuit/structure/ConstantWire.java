@@ -48,12 +48,20 @@ public class ConstantWire extends Wire {
 				out = new ConstantWire(generator.currentWireId++, newConstant);
 			} else{
 				out = new ConstantWire(generator.currentWireId++, newConstant.subtract(Config.FIELD_PRIME));
-			}
-			
-			generator.knownConstantWires.put(newConstant, out);
+			}			
 			Instruction op = new ConstMulBasicOp(this, out,
 					b, desc);
-			generator.addToEvaluationQueue(op);
+			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
+			if(cachedOutputs == null){
+				generator.knownConstantWires.put(newConstant, out);
+				return out;
+			}
+			else{
+				// this branch might not be needed
+				generator.currentWireId--;
+				return cachedOutputs[0];
+			}
+			
 		}
 		return out;
 	}

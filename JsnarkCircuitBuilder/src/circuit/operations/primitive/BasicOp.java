@@ -12,11 +12,9 @@ import circuit.structure.Wire;
 
 public abstract class BasicOp implements Instruction {
 
-	protected String opcode;
 	protected Wire[] inputs;
 	protected Wire[] outputs;
 	protected String desc;
-	protected int numMulGates;
 
 	public BasicOp(Wire[] inputs, Wire[] outputs, String... desc) {
 		this.inputs = inputs;
@@ -45,9 +43,6 @@ public abstract class BasicOp implements Instruction {
 
 	}
 
-	public int getNumMulGates() {
-		return numMulGates;
-	}
 
 	public BasicOp(Wire[] inputs, Wire[] outputs) {
 		this(inputs, outputs, "");
@@ -80,8 +75,11 @@ public abstract class BasicOp implements Instruction {
 		}
 	}
 
+	public abstract String getOpcode();
+	public abstract int getNumMulGates();
+	
 	public String toString() {
-		return opcode + " in " + inputs.length + " <" + Util.arrayToString(inputs, " ") + "> out " + outputs.length
+		return getOpcode() + " in " + inputs.length + " <" + Util.arrayToString(inputs, " ") + "> out " + outputs.length
 				+ " <" + Util.arrayToString(outputs, " ") + ">" + (desc.length() > 0 ? (" \t\t# " + desc) : "");
 	}
 
@@ -99,29 +97,24 @@ public abstract class BasicOp implements Instruction {
 	
 	@Override
 	public int hashCode() {
-		// For now, we care about binary operations with an actual cost, so this will be overriden in mul, xor and or.
-		// TODO: revisit to complete all optimizations
-		if(inputs.length == 2){
-			return opcode.hashCode() + inputs[0].hashCode() +  inputs[1].hashCode();
+
+		int h = getOpcode().hashCode();
+		for(Wire in:inputs){
+			h+=in.hashCode();
 		}
-		return super.hashCode();
+		return h;
 	}
+	
+	
 	
 	@Override
 	public boolean equals(Object obj) {
-		
 		if(this == obj)
 			return true;
-		if(!(obj instanceof BasicOp)){
+		else
 			return false;
-		}
-		BasicOp op = (BasicOp) obj;
-		if(inputs.length != 2 || opcode.equals("pack") || opcode.equals("add")){
-			return false; // Assume each instruction achieving the above as unique for now, i.e. caching ignored for them.
-		} else{
-			return op.opcode.equals(opcode) && ((inputs[0].equals(op.inputs[0])) && (inputs[1].equals(op.inputs[1])) || (
-					(inputs[1].equals(op.inputs[0])) && (inputs[0].equals(op.inputs[1]))));
-		}
+
+		// logic moved to subclasses
 	}
 
 }

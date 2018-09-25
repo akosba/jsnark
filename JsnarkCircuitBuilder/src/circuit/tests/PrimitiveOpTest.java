@@ -13,6 +13,7 @@ import org.junit.Test;
 import util.Util;
 import circuit.config.Config;
 import circuit.eval.CircuitEvaluator;
+import circuit.eval.Instruction;
 import circuit.structure.CircuitGenerator;
 import circuit.structure.Wire;
 import circuit.structure.WireArray;
@@ -318,5 +319,76 @@ public class PrimitiveOpTest extends TestCase {
 
 	}
 	
-	// TODO: Add tests for assertions, constant manipulations
+	
+	@Test
+	public void testAssertion() {
+
+		int numIns = 100;
+		BigInteger[] inVals1 = Util.randomBigIntegerArray(numIns, Config.FIELD_PRIME);
+		BigInteger[] inVals2 = Util.randomBigIntegerArray(numIns, Config.FIELD_PRIME);
+		
+		
+		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
+		result.add(inVals1[0].multiply(inVals1[0]).mod(Config.FIELD_PRIME));
+		for (int i = 0; i < numIns; i++) {
+			result.add(inVals1[i].multiply(inVals2[i]).mod(Config.FIELD_PRIME));
+		}
+
+		CircuitGenerator generator = new CircuitGenerator("assertions") {
+			WireArray inputs1;
+			WireArray inputs2;
+			WireArray solutions; // provide solutions as witnesses
+
+			@Override
+			protected void buildCircuit() {
+				inputs1 = new WireArray(createInputWireArray(numIns));
+				inputs2 = new WireArray(createInputWireArray(numIns));
+				solutions = new WireArray(createProverWitnessWireArray(numIns+1));
+
+				specifyProverWitnessComputation(new Instruction() {
+					
+					@Override
+					public void evaluate(CircuitEvaluator evaluator) {
+						evaluator.setWireValue(solutions.get(0),result.get(0));
+						for(int i =0; i < numIns;i++){
+							evaluator.setWireValue(solutions.get(i+1),result.get(i+1));
+						}
+					}
+				});
+				
+				addAssertion(inputs1.get(0), inputs1.get(0), solutions.get(0));
+				for(int i = 0; i < numIns;i++){
+					addAssertion(inputs1.get(i), inputs2.get(i), solutions.get(i+1));
+				}
+				
+				// constant assertions will not add constraints
+				addZeroAssertion(zeroWire);
+				addOneAssertion(oneWire);
+				addAssertion(zeroWire, oneWire, zeroWire);
+				addAssertion(oneWire, oneWire, oneWire);
+				addBinaryAssertion(zeroWire);
+				addBinaryAssertion(oneWire);
+				
+				// won't add a constraint
+				addEqualityAssertion(inputs1.get(0), inputs1.get(0));
+
+				// will add a constraint
+				addEqualityAssertion(inputs1.get(0), inVals1[0]);
+
+				
+			}
+
+			@Override
+			public void generateSampleInput(CircuitEvaluator evaluator) {
+				evaluator.setWireValue(inputs1.asArray(), inVals1);
+				evaluator.setWireValue(inputs2.asArray(), inVals2);
+
+			}
+		};
+		generator.generateCircuit();
+		CircuitEvaluator evaluator = new CircuitEvaluator(generator);
+		generator.generateSampleInput(evaluator);
+		evaluator.evaluate(); // no exception will be thrown
+		assertEquals(generator.getNumOfConstraints(), numIns + 2);
+	}
 }
