@@ -8,10 +8,12 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 import util.Util;
+import circuit.config.Config;
 import circuit.eval.CircuitEvaluator;
 import circuit.structure.CircuitGenerator;
 import circuit.structure.Wire;
 import examples.gadgets.hash.SHA256Gadget;
+import java.math.BigInteger;
 
 /**
  * Tests SHA256 standard cases.
