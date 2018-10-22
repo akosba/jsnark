@@ -2,7 +2,7 @@
 
 This is a Java library for building circuits for preprocessing zk-SNARKs. The library uses libsnark as a backend (https://github.com/scipr-lab/libsnark), and can integrate circuits produced by the Pinocchio compiler (https://vc.codeplex.com/SourceControl/latest) when needed by the programmer. The code consists of two main parts:
 - `JsnarkCircuitBuilder`: A Java project that has a Gadget library for building/augmenting circuits. (Check the `src/examples` package)
-- `libsnark/src/interface`: A C++ interface to libsnark which accepts circuits produced by either the circuit builder or by Pinocchio's compiler directly.
+- `libsnark/jsnark_interface`: A C++ interface to libsnark which accepts circuits produced by either the circuit builder or by Pinocchio's compiler directly.
 
 __Update__: The library now has several cryptographic gadgets used in earlier work ([Hawk](https://eprint.iacr.org/2015/675.pdf) and [C0C0](https://eprint.iacr.org/2015/1093.pdf)). Some of the gadgets like RSA and AES were improved by techniques from xjsnark (to appear). The gadgets can be found in [src/examples/gadgets](https://github.com/akosba/jsnark/tree/master/JsnarkCircuitBuilder/src/examples/gadgets).
 
@@ -17,7 +17,7 @@ For Ubuntu 14.04, the following can be done to install the above:
 
 - To install libsnark prerequisites: 
 
-	`$ sudo apt-get install build-essential git libgmp3-dev libprocps3-dev libgtest-dev python-markdown libboost-all-dev libssl-dev`
+	`$ sudo apt-get install build-essential cmake git libgmp3-dev libprocps3-dev python-markdown libboost-all-dev libssl-dev`
 
 Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next section.
 
@@ -47,16 +47,18 @@ Verify the installed version by `java -version`. In case it is not 1.8 or later,
 
 	`$ cd jsnark/libsnark`
 
-	`$ ./prepare-depends.sh`
+	`$ git submodule init && git submodule update`
+
+	`$ mkdir build && cd build && cmake ..`
 
 	`$ make`  
 
-The makefile has been modified to produce the one needed executable for the interface. The executable will appear under src/interface  
+The CMakeLists files were modified to produce the needed executable for the interface. The executable will appear under build/libsnark/jsnark_interface
 
 - Compile and test the JsnarkCircuitBuilder project as in the next section..
 
 ### Running and Testing JsnarkCircuitBuilder
-To compile the JsnarkCircuitBuilder project via command line,  
+To compile the JsnarkCircuitBuilder project via command line, from the jsnark directory:  
 
     $ cd JsnarkCircuitBuilder
     $ mkdir -p bin
@@ -64,7 +66,7 @@ To compile the JsnarkCircuitBuilder project via command line,
 
 The classpaths of junit4 and bcprov-jdk15on-159.jar may need to be adapted in case the jars are located elsewhere. The above command assumes that  bcprov-jdk15on-159.jar was moved to the JsnarkCircuitBuilder directory.
 
-Before running the following, make sure the `PATH_TO_LIBSNARK_EXEC` property in `config.properties` points to the path of the `run_libsnark` executable. 
+Before running the following, make sure the `PATH_TO_LIBSNARK_EXEC` property in `config.properties` points to the path of the `run_ppzksnark` executable. 
 
 To run a simple example, the following command can be used
 
@@ -104,14 +106,14 @@ To summarize the steps needed:
 
 ### Running circuits compiled by Pinocchio on libsnark
 
-- To use Pinocchio directly with libsark, run the interface executable on the `<circuit name>.arith` and `<circuit name>.in` files. The `<circuit name>.in` should specify the hexadecimal value for each input and nizkinput wire ids, in the following format: `id value`, each on a separate line.
+- To use Pinocchio directly with libsark, run the interface executable `run_ppzksnark` on the `<circuit name>.arith` and `<circuit name>.in` files. The `<circuit name>.in` should specify the hexadecimal value for each input and nizkinput wire ids, in the following format: `id value`, each on a separate line.
 - It is important to assign 1 to the wire denoted as the one wire input in the arithmetic file.
 
 ### Comparison with libsnark's gadget libraries
 
 The gadget library of jsnark shares some similarities with the C++ Gadget library of libsnark, but it has some options that could possibly help for writing optimized circuits quickly without specifying all details. If the reader is familiar with the gadget libraries of libsnark, and would like to try jsnark, here are some key points to minimize confusion:
 - No need to maintain a distinction between Variables, LinearCombinations, ... etc. The type Wire can be used to represent Variables, LinearCombinations, Constants, .. etc. The library handles the mapping in a later stage.
-- Instead of having the notion of primary input and auxiliary input for representing variables, the important wires in jsnark can be labeled anywhere as either input, output, prover witness wires. Both the input and output wires are public and seen by the verifier (this corresponds to the primary input in libsnark). The prover witness wires refer to the *free* input variables provided by the prover. This is in some sense similar to the way Pinocchio's compiler classifies wires.  
+- Instead of having the notion of primary input and auxiliary input for representing variables, wires in jsnark can be labeled anywhere as either input, output, prover witness wires. Both the input and output wires are public and seen by the verifier (this corresponds to the primary input in libsnark). The prover witness wires refer to the *free* input variables provided by the prover. This is in some sense similar to the way Pinocchio's compiler classifies wires.  
 - Each Gadget in libsnark requires writing and calling two methods: generateConstraints() to specify the r1cs constraints, and generateWitness() to invoke the witness computation. In jsnark's builder, applying primitive operations on wires generates constraints automatically. Additionally, the witness computation is done automatically for primitive operations, and does not need to be explicitly invoked, except in the case of prover witness computation that has to be done outside the circuit, e.g. the FieldDivisionGadget example.
 - Jsnark applies caching and other techniques during circuit construction to cancel unneeded constraints. This helps in code reusability when changing input variables wires to carry constant values instead. This also helps in reducing the complexity when writing optimized circuits. One example is the ``maj`` calculation in the SHA256 gadget, in which jsnark detects similar operations across the loop iterations with little effort from the programmer, resulting in more than 1000 gates savings. ``CachingTest.java`` also illustrates what the caching approach can help with.
 
