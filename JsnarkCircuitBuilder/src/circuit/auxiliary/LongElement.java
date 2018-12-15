@@ -468,6 +468,9 @@ public class LongElement {
 			Wire w2 = i < other.array.length ? other.array[i] : generator
 					.getZeroWire();
 			newArray[i] = w1.add(w.mul(w2.sub(w1)));
+			if(newArray[i] instanceof ConstantWire){
+				newMaxValues[i] = ((ConstantWire)newArray[i]).getConstant();
+			}
 
 		}
 		return new LongElement(newArray, newMaxValues);
@@ -490,11 +493,15 @@ public class LongElement {
 	}
 
 	public BigInteger getConstant(int bitwidth_per_chunk) {
-		for (Wire w : array) {
-			if (!(w instanceof ConstantWire))
+		BigInteger[] constants = new BigInteger[array.length];
+		for (int i = 0; i < array.length; i++) {
+			if (!(array[i] instanceof ConstantWire))
 				return null;
+			else{
+				constants[i] = ((ConstantWire)array[i]).getConstant();
+			}
 		}
-		return Util.group(currentMaxValues, bitwidth_per_chunk);
+		return Util.group(constants, bitwidth_per_chunk);
 	}
 
 	// the equals java method to compare objects (this is NOT for circuit
