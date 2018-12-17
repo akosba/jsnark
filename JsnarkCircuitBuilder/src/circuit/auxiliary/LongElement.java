@@ -417,8 +417,7 @@ public class LongElement {
 
 					}
 				} else {
-					alignedChunkBits = newArray[chunkIndex].getBitWires(
-							newMaxValues[chunkIndex].bitLength()).asArray();
+					alignedChunkBits = newArray[chunkIndex].getBitWires(BITWIDTH_PER_CHUNK).asArray();
 				}
 				System.arraycopy(alignedChunkBits, 0, bitWires, idx,
 						Math.min(alignedChunkBits.length, limit - idx));
