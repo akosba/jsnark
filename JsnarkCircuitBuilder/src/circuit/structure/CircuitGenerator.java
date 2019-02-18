@@ -188,7 +188,7 @@ public abstract class CircuitGenerator {
 
 	}
 
-	private Wire makeVariable(Wire wire, String... desc) {
+	protected Wire makeVariable(Wire wire, String... desc) {
 		Wire outputWire = new VariableWire(currentWireId++);
 		Instruction op = new MulBasicOp(wire, oneWire, outputWire, desc);
 		Wire[] cachedOutputs = addToEvaluationQueue(op);

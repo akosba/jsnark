@@ -65,8 +65,7 @@ public class PackBasicOp extends BasicOp {
 	
 	@Override
 	public int getNumMulGates() {
-		// note that we can do in zero gates as well, but would require modifying our libsnark interface
-		return 1;
+		return 0;
 	}
 
 

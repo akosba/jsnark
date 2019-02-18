@@ -10,6 +10,7 @@ import util.Util;
 import circuit.eval.Instruction;
 import circuit.operations.primitive.AddBasicOp;
 import circuit.operations.primitive.PackBasicOp;
+import circuit.config.Config;
 
 public class WireArray {
 
@@ -252,20 +253,21 @@ public class WireArray {
 			}
 		}
 		if(!allConstant){
-			Wire out = new VariableWire(generator.currentWireId++);
+			Wire out = new LinearCombinationWire(generator.currentWireId++);
 			out.setBits(new WireArray(bits));
 			Instruction op = new PackBasicOp(bits, out, desc);
-//			generator.addToEvaluationQueue(op);
 			Wire[] cachedOutputs = generator.addToEvaluationQueue(op);
-//			System.out.println(cachedOutputs);
 			if(cachedOutputs == null){
-				return out;
+				if(Config.promotePackOutput){
+					return CircuitGenerator.getActiveCircuitGenerator().makeVariable(out);				
+				} else{
+					return out;
+				}			
 			}
 			else{
 				generator.currentWireId--;
 				return cachedOutputs[0];
 			}
-//			return out;
 		} else{
 			return generator.createConstantWire(sum, desc);
 
