@@ -175,10 +175,11 @@ public abstract class CircuitGenerator {
 	public Wire makeOutput(Wire wire, String... desc) {
 		Wire outputWire = wire;
 		if (!(wire instanceof VariableWire || wire instanceof VariableBitWire) || inWires.contains(wire)) {
+			wire.packIfNeeded();
 			outputWire = makeVariable(wire, desc);
 		} else if (inWires.contains(wire) || proverWitnessWires.contains(wire)) {
 			outputWire = makeVariable(wire, desc);
-		} else if (wire instanceof VariableWire) {
+		} else {
 			wire.packIfNeeded();
 		}
 
@@ -214,17 +215,13 @@ public abstract class CircuitGenerator {
 	}
 
 	public void addDebugInstruction(Wire w, String... desc) {
-		if (w instanceof VariableWire) {
-			w.packIfNeeded();
-		}
+		w.packIfNeeded();
 		addToEvaluationQueue(new WireLabelInstruction(LabelType.debug, w, desc));
 	}
 
 	public void addDebugInstruction(Wire[] wires, String... desc) {
 		for (int i = 0; i < wires.length; i++) {
-			if (wires[i] instanceof VariableWire) {
-				wires[i].packIfNeeded();
-			}
+			wires[i].packIfNeeded();
 			addToEvaluationQueue(
 					new WireLabelInstruction(LabelType.debug, wires[i], desc.length > 0 ? (desc[0] + " - " + i) : ""));
 		}
@@ -369,12 +366,9 @@ public abstract class CircuitGenerator {
 				throw new RuntimeException("Assertion failed on the provided constant wires .. ");
 			}
 		} else {
-			if(w1 instanceof VariableWire)
-				w1.packIfNeeded();
-			if(w2 instanceof VariableWire)
-				w2.packIfNeeded();
-			if(w3 instanceof VariableWire)
-				w3.packIfNeeded();
+			w1.packIfNeeded();
+			w2.packIfNeeded();
+			w3.packIfNeeded();
 			Instruction op = new AssertBasicOp(w1, w2, w3, desc);
 			addToEvaluationQueue(op);
 		}

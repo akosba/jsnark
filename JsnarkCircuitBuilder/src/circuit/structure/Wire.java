@@ -258,7 +258,7 @@ public class Wire {
 		WireArray result = bits1.xorWireArray(bits2, numBits, desc);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
@@ -278,7 +278,7 @@ public class Wire {
 		WireArray result = bits1.andWireArray(bits2, numBits, desc);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
@@ -298,7 +298,7 @@ public class Wire {
 		WireArray result = bits1.orWireArray(bits2, numBits, desc);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
@@ -412,7 +412,7 @@ public class Wire {
 		WireArray result = new WireArray(rotatedBits);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
@@ -430,7 +430,7 @@ public class Wire {
 		WireArray result = new WireArray(rotatedBits);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
@@ -448,7 +448,7 @@ public class Wire {
 		WireArray result = new WireArray(shiftedBits);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
@@ -466,7 +466,7 @@ public class Wire {
 		WireArray result = new WireArray(shiftedBits);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
@@ -478,7 +478,7 @@ public class Wire {
 		for (int i = 0; i < resultBits.length; i++) {
 			resultBits[i] = bits[i].invAsBit(desc);
 		}
-		return new VariableWire(new WireArray(resultBits));
+		return new LinearCombinationWire(new WireArray(resultBits));
 	}
 
 	public Wire trimBits(int currentNumOfBits, int desiredNumofBits, String... desc) {
@@ -486,7 +486,7 @@ public class Wire {
 		WireArray result = bitWires.adjustLength(desiredNumofBits);
 		BigInteger v = result.checkIfConstantBits(desc);
 		if (v == null) {
-			return new VariableWire(result);
+			return new LinearCombinationWire(result);
 		} else {
 			return generator.createConstantWire(v);
 		}
