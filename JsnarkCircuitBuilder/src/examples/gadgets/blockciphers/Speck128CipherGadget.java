@@ -48,7 +48,7 @@ public class Speck128CipherGadget extends Gadget {
 		ciphertext = new Wire[2];
 		for (int i = 0; i <= 31; i++) {
 			x = x.rotateRight(64, 8).add(y);
-			x.getBitWires(65);
+			x = x.trimBits(65, 64);
 			x = x.xorBitwise(expandedKey[i], 64);
 			y = y.rotateLeft(64, 3).xorBitwise(x, 64);
 		}
@@ -71,7 +71,7 @@ public class Speck128CipherGadget extends Gadget {
 		l[0] = key[1];
 		for (int i = 0; i <= 32 - 2; i++) {
 			l[i + 1] = k[i].add(l[i].rotateLeft(64, 56));
-			l[i + 1].getBitWires(65);
+			l[i + 1] = l[i + 1].trimBits(65, 64);
 			l[i + 1] = l[i + 1].xorBitwise(generator.createConstantWire(i), 64);
 			k[i + 1] = k[i].rotateLeft(64, 3).xorBitwise(l[i + 1], 64);
 		}

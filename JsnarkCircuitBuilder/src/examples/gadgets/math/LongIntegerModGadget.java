@@ -64,16 +64,16 @@ public class LongIntegerModGadget extends Gadget {
 
 	private void buildCircuit() {
 
-		int aBitwidth = a.getMaxVal(LongElement.BITWIDTH_PER_CHUNK).bitLength();
-		int bBitwidth = b.getMaxVal(LongElement.BITWIDTH_PER_CHUNK).bitLength();
+		int aBitwidth = a.getMaxVal(LongElement.CHUNK_BITWIDTH).bitLength();
+		int bBitwidth = b.getMaxVal(LongElement.CHUNK_BITWIDTH).bitLength();
 
 		int rBitwidth = bBitwidth;
 		int qBitwidth = aBitwidth - bBitwidth + 1;
 
 		int rChunkLength = (int) Math.ceil(rBitwidth * 1.0
-				/ LongElement.BITWIDTH_PER_CHUNK);
+				/ LongElement.CHUNK_BITWIDTH);
 		int qChunkLength = (int) Math.ceil(qBitwidth * 1.0
-				/ LongElement.BITWIDTH_PER_CHUNK);
+				/ LongElement.CHUNK_BITWIDTH);
 
 		Wire[] rWires = generator.createProverWitnessWireArray(rChunkLength);
 		Wire[] qWires = generator.createProverWitnessWireArray(qChunkLength);
@@ -81,16 +81,16 @@ public class LongIntegerModGadget extends Gadget {
 		int[] rChunkBitwidths = new int[rChunkLength];
 		int[] qChunkBitwidths = new int[qChunkLength];
 
-		Arrays.fill(rChunkBitwidths, LongElement.BITWIDTH_PER_CHUNK);
-		Arrays.fill(qChunkBitwidths, LongElement.BITWIDTH_PER_CHUNK);
+		Arrays.fill(rChunkBitwidths, LongElement.CHUNK_BITWIDTH);
+		Arrays.fill(qChunkBitwidths, LongElement.CHUNK_BITWIDTH);
 
-		if (rBitwidth % LongElement.BITWIDTH_PER_CHUNK != 0) {
+		if (rBitwidth % LongElement.CHUNK_BITWIDTH != 0) {
 			rChunkBitwidths[rChunkLength - 1] = rBitwidth
-					% LongElement.BITWIDTH_PER_CHUNK;
+					% LongElement.CHUNK_BITWIDTH;
 		}
-		if (qBitwidth % LongElement.BITWIDTH_PER_CHUNK != 0) {
+		if (qBitwidth % LongElement.CHUNK_BITWIDTH != 0) {
 			qChunkBitwidths[qChunkLength - 1] = qBitwidth
-					% LongElement.BITWIDTH_PER_CHUNK;
+					% LongElement.CHUNK_BITWIDTH;
 		}
 
 		r = new LongElement(rWires, rChunkBitwidths);
@@ -105,27 +105,27 @@ public class LongIntegerModGadget extends Gadget {
 			@Override
 			public void evaluate(CircuitEvaluator evaluator) {
 				BigInteger aValue = evaluator.getWireValue(a,
-						LongElement.BITWIDTH_PER_CHUNK);
+						LongElement.CHUNK_BITWIDTH);
 				BigInteger bValue = evaluator.getWireValue(b,
-						LongElement.BITWIDTH_PER_CHUNK);
+						LongElement.CHUNK_BITWIDTH);
 				BigInteger rValue = aValue.mod(bValue);
 				BigInteger qValue = aValue.divide(bValue);
 
 				evaluator.setWireValue(r.getArray(),
-						Util.split(rValue, LongElement.BITWIDTH_PER_CHUNK));
+						Util.split(rValue, LongElement.CHUNK_BITWIDTH));
 				evaluator.setWireValue(q.getArray(),
-						Util.split(qValue, LongElement.BITWIDTH_PER_CHUNK));
+						Util.split(qValue, LongElement.CHUNK_BITWIDTH));
 			}
 		});
 
-		r.forceBitwidth();
-		q.forceBitwidth();
+		r.restrictBitwidth();
+		q.restrictBitwidth();
 
 		LongElement res = q.mul(b).add(r);
 
 		// implements the improved long integer equality assertion from xjsnark
 		res.assertEquality(a);
-
+		
 		if (restrictRange) {
 			r.assertLessThan(b);
 		}

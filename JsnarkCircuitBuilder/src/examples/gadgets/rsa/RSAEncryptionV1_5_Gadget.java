@@ -100,7 +100,7 @@ public class RSAEncryptionV1_5_Gadget extends Gadget {
 			LongElement e = new LongElement(paddedPlainText[i], 8);
 			LongElement c = new LongElement(Util.split(
 					BigInteger.ONE.shiftLeft(8 * i),
-					LongElement.BITWIDTH_PER_CHUNK));
+					LongElement.CHUNK_BITWIDTH));
 			paddedMsg = paddedMsg.add(e.mul(c));
 		}
 		

@@ -64,7 +64,7 @@ public class RSASigVerificationV1_5_Gadget extends Gadget {
 
 		// get byte arrays
 		Wire[] sBytes = new WireArray(sChunks).getBits(
-				LongElement.BITWIDTH_PER_CHUNK).packBitsIntoWords(8);
+				LongElement.CHUNK_BITWIDTH).packBitsIntoWords(8);
 		Wire[] msgHashBytes = new WireArray(msgHash).getBits(32)
 				.packBitsIntoWords(8);
 

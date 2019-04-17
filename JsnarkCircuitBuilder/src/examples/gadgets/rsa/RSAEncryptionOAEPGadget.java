@@ -122,7 +122,7 @@ public class RSAEncryptionOAEPGadget extends Gadget {
 			LongElement e = new LongElement(paddedByteArray[paddedByteArray.length-i-1], 8);
 			LongElement c = new LongElement(Util.split(
 					BigInteger.ONE.shiftLeft(8 * i),
-					LongElement.BITWIDTH_PER_CHUNK));
+					LongElement.CHUNK_BITWIDTH));
 			paddedMsg = paddedMsg.add(e.mul(c));
 		}
 		

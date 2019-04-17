@@ -5,6 +5,7 @@ package circuit.structure;
 
 import java.math.BigInteger;
 
+import circuit.config.Config;
 import circuit.eval.Instruction;
 import circuit.operations.primitive.ConstMulBasicOp;
 import circuit.operations.primitive.MulBasicOp;
@@ -45,7 +46,9 @@ public class Wire {
 	}
 
 	void setBits(WireArray bits) {
-		System.out.println(
+		// method overriden in subclasses
+		// default action:
+		System.err.println(
 				"Warning --  you are trying to set bits for either a constant or a bit wire." + " -- Action Ignored");
 	}
 
@@ -173,13 +176,7 @@ public class Wire {
 		}
 	}
 
-	/**
-	 * Assumes a binary wire
-	 * 
-	 * @param w
-	 * @param desc
-	 * @return
-	 */
+
 	public Wire xor(Wire w, String... desc) {
 		if (w instanceof ConstantWire) {
 			return w.xor(this, desc);
@@ -210,6 +207,16 @@ public class Wire {
 			setBits(bitWires);
 			return bitWires;
 		} else {
+			if(bitwidth < bitWires.size() && !(this instanceof ConstantWire)){
+				System.err.println("Warning: getBitWires() was called with different arguments on the same wire more than once");
+				System.out.println("\t It was noted that the argument in the second call was less than the first.");
+				System.out.println("\t If this was called for enforcing a bitwidth constraint, you must use restrictBitLengh(), otherwise you can ignore this.");
+				if(Config.printStackTraceAtWarnings){
+					Thread.dumpStack();
+				} else{
+					System.out.println("\t You can view the stack trace by setting Config.printStackTraceAtWarnings to true in the code.");
+				}
+			}
 			return bitWires.adjustLength(bitwidth);
 		}
 	}

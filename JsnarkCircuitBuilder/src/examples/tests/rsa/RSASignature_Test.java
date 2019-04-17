@@ -103,9 +103,9 @@ public class RSASignature_Test extends TestCase {
 						BigInteger sig = new BigInteger(signaturePadded);
 
 						evaluator.setWireValue(this.rsaModulus, modulus,
-								LongElement.BITWIDTH_PER_CHUNK);
+								LongElement.CHUNK_BITWIDTH);
 						evaluator.setWireValue(this.signature, sig,
-								LongElement.BITWIDTH_PER_CHUNK);
+								LongElement.CHUNK_BITWIDTH);
 
 					} catch (Exception e) {
 						System.err
@@ -193,11 +193,11 @@ public class RSASignature_Test extends TestCase {
 						BigInteger sig = new BigInteger(signaturePadded);
 
 						evaluator.setWireValue(this.rsaModulus, modulus,
-								LongElement.BITWIDTH_PER_CHUNK);
+								LongElement.CHUNK_BITWIDTH);
 
 						// input the modulus itself instead of the signature
 						evaluator.setWireValue(this.signature, sig.subtract(BigInteger.ONE),
-								LongElement.BITWIDTH_PER_CHUNK);
+								LongElement.CHUNK_BITWIDTH);
 
 					} catch (Exception e) {
 						System.err
@@ -224,12 +224,12 @@ public class RSASignature_Test extends TestCase {
 		String inputStr = "abc";
 
 		int keySize = 1024;
-		int defaultBitwidth = LongElement.BITWIDTH_PER_CHUNK ;
+		int defaultBitwidth = LongElement.CHUNK_BITWIDTH ;
 
 		int[] chunkBiwidthArray = new int[106];
 		for(int b = 16; b-16 < chunkBiwidthArray.length; b++){
 			
-			LongElement.BITWIDTH_PER_CHUNK = b;
+			LongElement.CHUNK_BITWIDTH = b;
 			CircuitGenerator generator = new CircuitGenerator("RSA" + keySize
 					+ "_SIG_TestValid_ChunkB_"+b) {
 
@@ -286,9 +286,9 @@ public class RSASignature_Test extends TestCase {
 						BigInteger sig = new BigInteger(signaturePadded);
 
 						evaluator.setWireValue(this.rsaModulus, modulus,
-								LongElement.BITWIDTH_PER_CHUNK);
+								LongElement.CHUNK_BITWIDTH);
 						evaluator.setWireValue(this.signature, sig,
-								LongElement.BITWIDTH_PER_CHUNK);
+								LongElement.CHUNK_BITWIDTH);
 
 					} catch (Exception e) {
 						System.err
@@ -304,7 +304,7 @@ public class RSASignature_Test extends TestCase {
 			assertEquals(BigInteger.ONE,
 					evaluator.getWireValue(generator.getOutWires().get(0)));
 			
-			LongElement.BITWIDTH_PER_CHUNK = defaultBitwidth; // needed for running all tests together
+			LongElement.CHUNK_BITWIDTH = defaultBitwidth; // needed for running all tests together
 		}
 
 	}

@@ -104,7 +104,7 @@ public class RSAEncryptionOAEP_Test extends TestCase {
 
 						evaluator
 								.setWireValue(this.rsaModulus, rsaModulusValue,
-										LongElement.BITWIDTH_PER_CHUNK);
+										LongElement.CHUNK_BITWIDTH);
 
 						Key privKey = keyPair.getPrivate();
 

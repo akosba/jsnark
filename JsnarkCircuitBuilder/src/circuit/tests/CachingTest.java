@@ -69,7 +69,7 @@ public class CachingTest extends TestCase {
 		CircuitGenerator generator = new CircuitGenerator("Caching_Test") {
 			Wire[] inputs1;
 			Wire[] inputs2;
-			Wire[] inputs3;
+			Wire[] inputs3; // 32-bit values
 
 			@Override
 			protected void buildCircuit() {
@@ -89,7 +89,7 @@ public class CachingTest extends TestCase {
 
 				Wire[] multiplied = new Wire[numIns];
 				Wire[] added = new Wire[numIns];
-
+				
 				for (int i = 0; i < numIns; i++) {
 					shiftedRight[i] = inputs1[i].shiftRight(
 							Config.LOG2_FIELD_PRIME, i);

@@ -100,7 +100,7 @@ public class RSAEncryption_Test extends TestCase {
 					try {
 						Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 						evaluator.setWireValue(this.rsaModulus, rsaModulusValue,
-								LongElement.BITWIDTH_PER_CHUNK);
+								LongElement.CHUNK_BITWIDTH);
 
 						Key privKey = keyPair.getPrivate();
 

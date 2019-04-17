@@ -118,23 +118,23 @@ public abstract class CircuitGenerator {
 	}
 
 	public LongElement createLongElementInput(int totalBitwidth,  String... desc){
-		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.BITWIDTH_PER_CHUNK);
+		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.CHUNK_BITWIDTH);
 		Wire[] w = createInputWireArray(numWires, desc);
 		int[] bitwidths = new int[numWires];
-		Arrays.fill(bitwidths, LongElement.BITWIDTH_PER_CHUNK);
-		if (numWires * LongElement.BITWIDTH_PER_CHUNK != totalBitwidth) {
-			bitwidths[numWires - 1] = totalBitwidth % LongElement.BITWIDTH_PER_CHUNK;
+		Arrays.fill(bitwidths, LongElement.CHUNK_BITWIDTH);
+		if (numWires * LongElement.CHUNK_BITWIDTH != totalBitwidth) {
+			bitwidths[numWires - 1] = totalBitwidth % LongElement.CHUNK_BITWIDTH;
 		}
 		return new LongElement(w, bitwidths);	
 	}
 	
 	public LongElement createLongElementProverWitness(int totalBitwidth, String... desc){
-		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.BITWIDTH_PER_CHUNK);
+		int numWires = (int) Math.ceil(totalBitwidth*1.0/LongElement.CHUNK_BITWIDTH);
 		Wire[] w = createProverWitnessWireArray(numWires, desc);
 		int[] bitwidths = new int[numWires];
-		Arrays.fill(bitwidths, LongElement.BITWIDTH_PER_CHUNK);
-		if (numWires * LongElement.BITWIDTH_PER_CHUNK != totalBitwidth) {
-			bitwidths[numWires - 1] = totalBitwidth % LongElement.BITWIDTH_PER_CHUNK;
+		Arrays.fill(bitwidths, LongElement.CHUNK_BITWIDTH);
+		if (numWires * LongElement.CHUNK_BITWIDTH != totalBitwidth) {
+			bitwidths[numWires - 1] = totalBitwidth % LongElement.CHUNK_BITWIDTH;
 		}
 		return new LongElement(w, bitwidths);	
 	}

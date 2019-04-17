@@ -60,14 +60,14 @@ public class RSAEncryptionOAEPCircuitGenerator extends CircuitGenerator {
 
 		// rsaModulus = new LongElement(Util.split(new
 		// BigInteger("f0dac4df56945ec31a037c5b736b64192f14baf27f2036feb85dfe45dc99d8d3c024e226e6fd7cabb56f780f9289c000a873ce32c66f4c1b2970ae6b7a3ceb2d7167fbbfe41f7b0ed7a07e3c32f14c3940176d280ceb25ed0bf830745a9425e1518f27de822b17b2b599e0aea7d72a2a6efe37160e46bf7c78b0573c9014380ab7ec12ce272a83aaa464f814c08a0b0328e191538fefaadd236ae10ba9cbb525df89da59118c7a7b861ec1c05e09976742fc2d08bd806d3715e702d9faa3491a3e4cf76b5546f927e067b281c25ddc1a21b1fb12788d39b27ca0052144ab0aad7410dc316bd7e9d2fe5e0c7a1028102454be9c26c3c347dd93ee044b680c93cb",
-		// 16), LongElement.BITWIDTH_PER_CHUNK));
+		// 16), LongElement.CHUNK_BITWIDTH));
 
 		
 		rsaEncryptionOAEPGadget = new RSAEncryptionOAEPGadget(rsaModulus, inputMessage,
 				seed, rsaKeyLength);
 		
 		// since seed is a witness in this example, verify any needed constraints
-		// If the key or the msg are witnesses, similar costraints are needed
+		// If the key or the msg are witnesses, similar constraints are needed
 		rsaEncryptionOAEPGadget.checkSeedCompliance();
 		
 		Wire[] cipherTextInBytes = rsaEncryptionOAEPGadget.getOutputWires(); // in bytes
@@ -111,13 +111,13 @@ public class RSAEncryptionOAEPCircuitGenerator extends CircuitGenerator {
 			BigInteger modulus = ((RSAPublicKey) pubKey).getModulus();
 
 			evaluator.setWireValue(this.rsaModulus, modulus,
-					LongElement.BITWIDTH_PER_CHUNK);
+					LongElement.CHUNK_BITWIDTH);
 
 			Key privKey = pair.getPrivate();
 
 			cipher.init(Cipher.ENCRYPT_MODE, pubKey, random);
 			byte[] cipherText = cipher.doFinal(msg.getBytes());
-			System.out.println("ciphertext : " + new String(cipherText));
+//			System.out.println("ciphertext : " + new String(cipherText));
 			byte[] cipherTextPadded = new byte[cipherText.length + 1];
 			System.arraycopy(cipherText, 0, cipherTextPadded, 1, cipherText.length);
 			cipherTextPadded[0] = 0;
@@ -135,7 +135,6 @@ public class RSAEncryptionOAEPCircuitGenerator extends CircuitGenerator {
 			}
 
 			byte[] sampleRandomness = result[1];
-			System.out.println("Sample Random -- > " + sampleRandomness.length);
 			for (int i = 0; i < sampleRandomness.length; i++) {
 				evaluator.setWireValue(seed[i], (sampleRandomness[i]+256)%256);
 			}

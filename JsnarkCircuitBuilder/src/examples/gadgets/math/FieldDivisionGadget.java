@@ -12,6 +12,8 @@ import circuit.operations.Gadget;
 import circuit.structure.ConstantWire;
 import circuit.structure.Wire;
 
+// see notes in the end of the code.
+
 public class FieldDivisionGadget extends Gadget {
 
 	private final Wire a;
@@ -25,11 +27,10 @@ public class FieldDivisionGadget extends Gadget {
 		// if the input values are constant (i.e. known at compilation time), we
 		// can save one constraint
 		if (a instanceof ConstantWire && b instanceof ConstantWire) {
-			c = generator.createConstantWire(((ConstantWire) a)
-					.getConstant()
-					.multiply(
-							((ConstantWire) b).getConstant().modInverse(
-									Config.FIELD_PRIME))
+			BigInteger aConst = ((ConstantWire) a).getConstant();
+			BigInteger bInverseConst = ((ConstantWire) b).getConstant().modInverse(
+					Config.FIELD_PRIME);
+			c = generator.createConstantWire(aConst.multiply(bInverseConst)
 					.mod(Config.FIELD_PRIME));
 		} else {
 			c = generator.createProverWitnessWire(debugStr("division result"));
@@ -40,7 +41,7 @@ public class FieldDivisionGadget extends Gadget {
 	private void buildCircuit() {
 
 		// This is an example of computing a value outside the circuit and
-		// verifying constraints about it in the circuit
+		// verifying constraints about it in the circuit. See notes below.
 
 		generator.specifyProverWitnessComputation(new Instruction() {
 			@Override
@@ -54,11 +55,14 @@ public class FieldDivisionGadget extends Gadget {
 			}
 
 		});
+		
+		// to handle the case where a or b can be both zero, see below
 		generator.addAssertion(b, c, a,
 				debugStr("Assertion for division result"));
 
+
 		/*
-		 * Two notes: 1) The order of the above two statements matters (the
+		 * Few notes: 1) The order of the above two statements matters (the
 		 * specification and the assertion). In the current version, it's not
 		 * possible to swap them, as in the evaluation sequence, the assertion
 		 * must happen after the value is assigned.
@@ -68,7 +72,14 @@ public class FieldDivisionGadget extends Gadget {
 		 * program, the references a, and b referred to other wires, these wires
 		 * are going to be used instead in this instruction. Therefore, it will
 		 * be safer to use final references in cases like that to reduce the
-		 * probability of errors.
+		 * possibility of errors.
+		 * 
+		 * 3) The above constraint does not check if a and b are both zeros. In that
+		 * case, the prover will be able to use any value to make the constraint work.
+		 * When this case is problematic, enforce that b cannot have the value of zero.
+		 * 
+		 * This can be done by proving that b has an inverse, that satisfies 
+		 * b*(invB) = 1;
 		 */
 	}
 
