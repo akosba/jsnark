@@ -62,4 +62,14 @@ public class ConstMulBasicOp extends BasicOp {
 	}
 
 
+	@Override
+	public int hashCode() {
+		int h = constInteger.hashCode();
+		for(Wire in:inputs){
+			h+=in.hashCode();
+		}
+		return h;
+	}
+	
+	
 }

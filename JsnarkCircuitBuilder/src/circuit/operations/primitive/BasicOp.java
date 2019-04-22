@@ -97,7 +97,7 @@ public abstract class BasicOp implements Instruction {
 	
 	@Override
 	public int hashCode() {
-
+		// this method should be overriden when a subclass can have more than one opcode, or have other arguments
 		int h = getOpcode().hashCode();
 		for(Wire in:inputs){
 			h+=in.hashCode();
