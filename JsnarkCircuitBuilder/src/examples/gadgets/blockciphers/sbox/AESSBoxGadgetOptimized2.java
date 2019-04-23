@@ -100,32 +100,16 @@ public class AESSBoxGadgetOptimized2 extends Gadget {
 				HashSet<Integer> memberValueSet = new HashSet<>();
 
 				for (int k = 0; k < mat.length; k++) {
-
 					int memberValue = list.get(k + i * 16);
 					memberValueSet.add(memberValue);
 					mat[k][16] = BigInteger.ONE;
 
-					// adding one to avoid zero coeffs
-					BigInteger v = BigInteger.valueOf(memberValue + 1);
-					BigInteger product = v;
-					if (bitCount != 0) {
-						product = product.multiply(v).mod(
-								Config.FIELD_PRIME);
-					}
+					// now extract the values that correspond to memberValue
+					// the method getVariableValues takes the bitCount settings
+					// into account
+					BigInteger[] variableValues = getVariableValues(memberValue);
 					for (int j = 0; j <= 15; j++) {
-						int b = j;
-						if (j < bitCount) {
-							mat[k][j] = ((memberValue >> b) & 0x01) == 1 ? BigInteger.ONE
-									: BigInteger.ZERO;
-						} else {
-							// mat[k][j] = new BigInteger((value >> 8) * (value
-							// & 0xffff)
-							// + 1 +"");
-							mat[k][j] = product;
-							product = product.multiply(
-									BigInteger.valueOf(memberValue + 1)).mod(
-									Config.FIELD_PRIME);
-						}
+						mat[k][j] = variableValues[j];
 					}
 				}
 
@@ -147,7 +131,6 @@ public class AESSBoxGadgetOptimized2 extends Gadget {
 				BigInteger[] coeffs = new BigInteger[16];
 				for (int ii = 0; ii < 16; ii++) {
 					coeffs[ii] = mat[ii][16];
-
 				}
 				allCoeffSet.add(coeffs);
 
@@ -171,7 +154,16 @@ public class AESSBoxGadgetOptimized2 extends Gadget {
 						BigInteger.valueOf(SBox[value.intValue()]));
 			}
 		});
-		output.restrictBitLength(8); // Added for clarity. We are getting the bits below anyway. (won't result in extra constraints)
+
+		// Although we are getting the bits below anyway (which implicitly
+		// restricts the bitwidth), it's a safer practice to call
+		// restrictBitLength() explicitly to avoid some special cases with
+		// getBitWires().
+		// Similar operations get filtered later, so this won't add extra
+		// constraints.
+		output.restrictBitLength(8);
+		input.restrictBitLength(8);
+
 		Wire[] bitsIn = input.getBitWires(8).asArray();
 		Wire[] bitsOut = output.getBitWires(8).asArray();
 		Wire[] vars = new Wire[16];
@@ -215,31 +207,26 @@ public class AESSBoxGadgetOptimized2 extends Gadget {
 	private static BigInteger[] getVariableValues(int k) {
 
 		BigInteger[] vars = new BigInteger[16];
-		// BigInteger s = new BigInteger((k >> 8) * (k) + 1 + "");
-		BigInteger v = new BigInteger(k + 1 + "");
+		BigInteger v = BigInteger.valueOf(k).add(BigInteger.ONE);
 		BigInteger product = v;
 		if (bitCount != 0) {
 			product = product.multiply(v).mod(Config.FIELD_PRIME);
 		}
 		for (int j = 0; j < 16; j++) {
 			if (j < bitCount) {
-				int b = j;
-				vars[j] = new BigInteger(((k >> b) & 0x01) + "");
+				vars[j] = ((k >> j) & 0x01) == 1 ? BigInteger.ONE
+						: BigInteger.ZERO;
 			} else {
 				vars[j] = product;
 				product = product.multiply(v).mod(Config.FIELD_PRIME);
 			}
 		}
-
 		return vars;
 	}
 
-	
-	
-	
-	
 	private static boolean checkIfProverCanCheat(BigInteger[][] mat,
 			HashSet<Integer> valueSet) {
+
 		BigInteger[] coeffs = new BigInteger[16];
 		for (int i = 0; i < 16; i++) {
 			coeffs[i] = mat[i][16];
@@ -250,30 +237,31 @@ public class AESSBoxGadgetOptimized2 extends Gadget {
 
 		// loop over the whole permissible domain (recall that input & output
 		// are bounded)
+
 		for (int k = 0; k < 256 * 256; k++) {
 
-			BigInteger[] vars = getVariableValues(k);
+			BigInteger[] variableValues = getVariableValues(k);
 			BigInteger result = BigInteger.ZERO;
 			for (int i = 0; i < 16; i++) {
-				result = result.add(vars[i].multiply(coeffs[i]));
+				result = result.add(variableValues[i].multiply(coeffs[i]));
 			}
 			result = result.mod(Config.FIELD_PRIME);
-			if (result.equals(BigInteger.ONE)){ 
+			if (result.equals(BigInteger.ONE)) {
 				validResults++;
-				if(!valueSet.contains(k)){
+				if (!valueSet.contains(k)) {
 					outsidePermissibleSet++;
 				}
 			}
 		}
-		if (validResults != 16 || outsidePermissibleSet!=0) {
+		if (validResults != 16 || outsidePermissibleSet != 0) {
 			System.out.println("Prover can cheat with linear system solution");
 			System.out.println("Num of valid values that the prover can use = "
 					+ validResults);
 			System.out.println("Num of valid values outside permissible set = "
 					+ validResults);
 			return true;
-		} else{
+		} else {
 			return false;
 		}
-	}	
+	}
 }
