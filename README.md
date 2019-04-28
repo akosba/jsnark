@@ -11,7 +11,7 @@ __Updates__:
 ### Prerequisites
 
 - Libsnark prerequisites
-- JDK 8
+- JDK 8 (Higher versions are also expected to work. We've only tested with JDKs 8 and 12.)
 - Junit 4
 - BouncyCastle library
 

@@ -15,6 +15,7 @@ import java.util.Scanner;
 
 import util.Util;
 import circuit.auxiliary.LongElement;
+import circuit.config.Config;
 import circuit.operations.WireLabelInstruction;
 import circuit.operations.WireLabelInstruction.LabelType;
 import circuit.structure.CircuitGenerator;
@@ -33,6 +34,9 @@ public class CircuitEvaluator {
 	}
 
 	public void setWireValue(Wire w, BigInteger v) {
+		if(v.signum() < 0 || v.compareTo(Config.FIELD_PRIME) >=0){
+			throw new IllegalArgumentException("Only positive values that are less than the modulus are allowed for this method.");
+		}
 		valueAssignment[w.getWireId()] = v;
 	}
 
@@ -71,7 +75,10 @@ public class CircuitEvaluator {
 	}
 
 	public void setWireValue(Wire wire, long v) {
-		setWireValue(wire, new BigInteger(v + ""));
+		if(v < 0){
+			throw new IllegalArgumentException("Only positive values that are less than the modulus are allowed for this method.");
+		}
+		setWireValue(wire, BigInteger.valueOf(v));
 	}
 
 	public void setWireValue(Wire[] wires, BigInteger[] v) {
