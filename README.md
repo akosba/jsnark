@@ -6,7 +6,7 @@ This is a Java library for building circuits for preprocessing zk-SNARKs. The li
 
 __Updates__: 
 - The jsnark library now has several cryptographic gadgets used in earlier work ([Hawk](https://eprint.iacr.org/2015/675.pdf) and [C0C0](https://eprint.iacr.org/2015/1093.pdf)). Some of the gadgets like RSA and AES were improved by techniques from xJsnark. The gadgets can be found in [src/examples/gadgets](https://github.com/akosba/jsnark/tree/master/JsnarkCircuitBuilder/src/examples/gadgets).
-- xJsnark, a high-level programming framework for zk-SNARKs is available [here](https://github.com/akosba/xjsnark). xJsnark uses an enhancd version of jsnark in its back end, and aims at reducing the background/effort required by low-level libraries, while generating efficient circuits from the high-level code. Sample examples can be found in this [page](https://github.com/akosba/xjsnark#examples-included).
+- xJsnark, a high-level programming framework for zk-SNARKs is available [here](https://github.com/akosba/xjsnark). xJsnark uses an enhanced version of jsnark in its back end, and aims at reducing the background/effort required by low-level libraries, while generating efficient circuits from the high-level code. Sample examples can be found in this [page](https://github.com/akosba/xjsnark#examples-included).
 
 ### Prerequisites
 
@@ -112,14 +112,20 @@ To summarize the steps needed:
 	- `generateCircuit()`: generates the arithmetic circuit and the constraints.
 	- `evalCircuit()`: evaluates the circuit.
 	- `prepFiles()`: This produces two files: `<circuit name>.arith` and `<circuit name>.in`. The first file specifies the arithemtic circuit in a way that is similar to how Pinocchio outputs arithmetic circuits, but with other kinds of instructions, like: xor, or, pack and assert. The second file outputs a file containing the values for the input and prover free witness wires. This step must be done after calling `evalCircuit()` as some witness values are computed during that step.
-	- `runLibsnark()`: This runs the libsnark interface with the two files produced in the last step. This can also be done manually outside the circuit if needed.	
+	- `runLibsnark()`: This runs the libsnark interface on the two files produced in the last step. By default, this method runs the r1cs_ppzksnark proof system implemented in libsnark. For other options see below.
 - Note: In the executing thread, use one CircuitGenerator per thread at a time. If multiple generators are used in parallel, each needs to be in a separate thread, and the corresponding property value in config.properties need to be adapted.
+
+#### Running circuit outputs on libsnark
+
+Given the .arith and the .in files, it's possible to use command line directly to run the jsnark-libsnark interface. You can use the executable interface `run_ppzksnark` that appears in `jsnark/libsnark/build/libsnark/jsnark_interface` to run the libsnark algorithms on the circuit. The executable currently allows to run the proof systems `r1cs_ppzksnark` (default) and `r1cs_gg_ppzksnark` implemented in libsnark. To run the first, the executable just takes two arguments: the arithmetic circuit file path, and a sample input file path. To run the `r1cs_gg_ppzksnark` proof system [Gro16], the first argument should be `gg`, followed by the arithmetic circuit file path, and the sample input file path.
+	
+#### Further Notes
 
 The gadget library of jsnark shares some similarities with the C++ Gadget library of libsnark, but it has some options that could possibly help with writing optimized circuits quickly without specifying all the details. If the reader is familiar with the gadget libraries of libsnark, here are some key points to minimize confusion:
 - No need to maintain a distinction between Variables, LinearCombinations, ... etc. The type Wire can be used to represent Variables, LinearCombinations, Constants, .. etc. The library handles the mapping in a later stage.
 - Instead of having the notion of primary input and auxiliary input for representing variables, wires in jsnark can be labeled anywhere as either input, output, prover witness wires. Both the input and output wires are public and seen by the verifier (this corresponds to the primary input in libsnark). The prover witness wires refer to the *free* input variables provided by the prover. This is in some sense similar to the way Pinocchio's compiler classifies wires.  
 - Each Gadget in libsnark requires writing and calling two methods: generateConstraints() to specify the r1cs constraints, and generateWitness() to invoke the witness computation. In jsnark's builder, applying primitive operations on wires generates constraints automatically. Additionally, the witness computation is done automatically for primitive operations, and does not need to be explicitly invoked, except in the case of prover witness computation that has to be done outside the circuit, e.g. the FieldDivisionGadget example.
-- Jsnark applies caching and other techniques during circuit construction to cancel unneeded constraints. This helps in code reusability when changing input variables wires to carry constant values instead. This also helps in reducing the complexity when writing optimized circuits. One example is the ``maj`` calculation in the SHA256 gadget, in which jsnark detects similar operations across the loop iterations with little effort from the programmer, resulting in more than 1000 gates savings. ``CachingTest.java`` also illustrates what the caching approach can help with.
+- Jsnark applies caching and other techniques during circuit construction to cancel unneeded constraints. This helps in code reusability when changing input variables wires to carry constant values instead. This also helps in reducing the complexity when writing optimized circuits. One example is the ``maj`` calculation in the SHA256 gadget, in which jsnark detects similar operations across the loop iterations with little effort from the programmer, resulting in more than 1000 gates savings. ``CachingTest.java`` also illustrates what cases caching can help with.
 
 ### Running circuits compiled by Pinocchio on libsnark
 
