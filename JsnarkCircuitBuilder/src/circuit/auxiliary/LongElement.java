@@ -316,7 +316,7 @@ public class LongElement {
 	}
 
 	public void align(int totalNumChunks) {
-
+		// TODO set bits
 		array = Arrays.copyOfRange(array, 0, totalNumChunks);
 		for (int i = 0; i < array.length; i++) {
 			if (array[i] == null) {
@@ -329,12 +329,12 @@ public class LongElement {
 
 		for (int i = 0; i < totalNumChunks; i++) {
 			if (newMaxValues[i].bitLength() > CHUNK_BITWIDTH) {
-				Wire[] chunkBits = array[i].getBitWires(currentBitwidth[i])
+				Wire[] chunkBits = array[i].getBitWires(newMaxValues[i].bitLength())
 						.asArray();
 				array[i] = new WireArray(Arrays.copyOfRange(chunkBits, 0,
 						CHUNK_BITWIDTH)).packAsBits();
 				Wire rem = new WireArray(Arrays.copyOfRange(chunkBits,
-						CHUNK_BITWIDTH, currentBitwidth[i])).packAsBits();
+						CHUNK_BITWIDTH, newMaxValues[i].bitLength())).packAsBits();
 				if (i != totalNumChunks - 1) {
 					newMaxValues[i + 1] = newMaxValues[i].shiftRight(
 							CHUNK_BITWIDTH).add(newMaxValues[i + 1]);
