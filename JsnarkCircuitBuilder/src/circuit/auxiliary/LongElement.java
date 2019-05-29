@@ -50,7 +50,7 @@ public class LongElement {
 
 	public LongElement(WireArray bits) {
 		if (CHUNK_BITWIDTH >= bits.size()) {
-			array = new Wire[] { bits.packAsBits(CHUNK_BITWIDTH) };
+			array = new Wire[] { bits.packAsBits(bits.size()) };
 			this.currentMaxValues = new BigInteger[] { Util
 					.computeMaxValue(bits.size()) };
 			this.currentBitwidth = new int[] { bits.size() };
@@ -314,38 +314,39 @@ public class LongElement {
 	public int getSize() {
 		return array.length;
 	}
-
-	public void align(int totalNumChunks) {
-		// TODO set bits
-		array = Arrays.copyOfRange(array, 0, totalNumChunks);
-		for (int i = 0; i < array.length; i++) {
-			if (array[i] == null) {
-				array[i] = generator.getZeroWire();
+	
+	public LongElement align(int totalNumChunks) {
+		
+		Wire[] newArray = Arrays.copyOfRange(array, 0, totalNumChunks);
+		for(int i = 0; i < newArray.length; i++){
+			if(newArray[i] == null){
+				newArray[i]= generator.getZeroWire();
 			}
 		}
-
 		BigInteger[] newMaxValues = new BigInteger[totalNumChunks];
-		System.arraycopy(currentMaxValues, 0, newMaxValues, 0, totalNumChunks);
-
+		Arrays.fill(newMaxValues, BigInteger.ZERO);
+		System.arraycopy(currentMaxValues, 0, newMaxValues, 0, Math.min(totalNumChunks, currentMaxValues.length));
+		BigInteger maxAlignedChunkValue = Util.computeMaxValue(CHUNK_BITWIDTH);
+		
 		for (int i = 0; i < totalNumChunks; i++) {
 			if (newMaxValues[i].bitLength() > CHUNK_BITWIDTH) {
-				Wire[] chunkBits = array[i].getBitWires(newMaxValues[i].bitLength())
+				Wire[] chunkBits = newArray[i].getBitWires(newMaxValues[i].bitLength())
 						.asArray();
-				array[i] = new WireArray(Arrays.copyOfRange(chunkBits, 0,
+				newArray[i] = new WireArray(Arrays.copyOfRange(chunkBits, 0,
 						CHUNK_BITWIDTH)).packAsBits();
 				Wire rem = new WireArray(Arrays.copyOfRange(chunkBits,
 						CHUNK_BITWIDTH, newMaxValues[i].bitLength())).packAsBits();
 				if (i != totalNumChunks - 1) {
 					newMaxValues[i + 1] = newMaxValues[i].shiftRight(
 							CHUNK_BITWIDTH).add(newMaxValues[i + 1]);
-					array[i + 1] = rem.add(array[i + 1]);
+					newArray[i + 1] = rem.add(newArray[i + 1]);
 				}
-				newMaxValues[i] = Util.computeMaxValue(CHUNK_BITWIDTH);
-				currentBitwidth[i] = CHUNK_BITWIDTH;
+				newMaxValues[i] = maxAlignedChunkValue;
 			}
 		}
-		currentMaxValues = newMaxValues;
+		return new LongElement(newArray, newMaxValues);
 	}
+
 
 	// This method extracts (some of) the bit wires corresponding to a long
 	// element based on the totalBitwidth argument.
@@ -424,7 +425,7 @@ public class LongElement {
 				WireArray out = new WireArray(bitWires);
 				if(limit >= maxVal.bitLength()){
 					bits = out.adjustLength(maxVal.bitLength());
-				}
+				} 
 				return out;
 			}
 
@@ -848,7 +849,6 @@ public class LongElement {
 		for (int i = 0; i < helperBits.length; i++) {
 			chunk1 = chunk1.add(paddedA1[i].mul(helperBits[i]));
 			chunk2 = chunk2.add(paddedA2[i].mul(helperBits[i]));
-
 		}
 		generator.addOneAssertion(chunk1.isLessThan(chunk2,
 				LongElement.CHUNK_BITWIDTH));
@@ -858,8 +858,9 @@ public class LongElement {
 		helperBits2[0] = generator.getZeroWire();
 		for (int i = 1; i < helperBits.length; i++) {
 			helperBits2[i] = helperBits2[i - 1].add(helperBits[i - 1]);
-			generator.addZeroAssertion(helperBits2[i].mul(paddedA1[i]
-					.sub(paddedA2[i])));
+//			generator.addZeroAssertion(helperBits2[i].mul(paddedA1[i]
+//					.sub(paddedA2[i])));
+			generator.addAssertion(helperBits2[i], paddedA1[i].sub(paddedA2[i]), generator.getZeroWire());	
 		}
 
 		// no checks needed for the less significant chunks
