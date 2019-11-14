@@ -19,7 +19,7 @@ For Ubuntu 14.04, the following can be done to install the above:
 
 - To install libsnark prerequisites: 
 
-	`$ sudo apt-get install build-essential cmake git libgmp3-dev libprocps3-dev python-markdown libboost-all-dev libssl-dev`
+	`$ sudo apt-get install build-essential pkg-config cmake git libgmp3-dev libprocps3-dev python-markdown libboost-all-dev libssl-dev`
 
 Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next section.
 
