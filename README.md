@@ -62,7 +62,7 @@ Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make su
 
 - To install JDK:
 
-OpenJDK is a good alternative for Oracle JDK, and it's obtainable in almost every Linux distros' official repo.
+OpenJDK is a good alternative for Oracle JDK, and it's obtainable from almost every Linux distro's official repo.
 
 To install OpenJDK 11 instead of Oracle JDK 8, 
 
