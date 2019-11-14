@@ -50,9 +50,11 @@ For Ubuntu 16.04, the only difference is to replace `libprocps3-dev` with `libpr
 
 	`$ sudo apt-get install build-essential pkg-config cmake git libgmp3-dev libprocps4-dev python-markdown libboost-all-dev libssl-dev`
 
-#### Debian 10
+Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next section.
 
-For Debian 10, the only difference is to replace `libprocps3-dev` with `libprocps-dev`.
+#### Ubuntu 18.04 / Debian 10
+
+For Ubuntu 18.04, the only difference is to replace `libprocps3-dev` with `libprocps-dev`.
 
 - To install libsnark prerequisites: 
 
