@@ -107,10 +107,10 @@ public class RSAEncryptionV1_5_Gadget extends Gadget {
 		LongElement s = paddedMsg;
 		for (int i = 0; i < 16; i++) {
 			s = s.mul(s);
-			s = new LongIntegerModGadget(s, modulus, false).getRemainder();
+			s = new LongIntegerModGadget(s, modulus, rsaKeyBitLength, false).getRemainder();
 		}
 		s = s.mul(paddedMsg);
-		s = new LongIntegerModGadget(s, modulus, true).getRemainder();
+		s = new LongIntegerModGadget(s, modulus, rsaKeyBitLength, true).getRemainder();
 
 		// return the cipher text as byte array
 		ciphertext = s.getBits(rsaKeyBitLength).packBitsIntoWords(8);

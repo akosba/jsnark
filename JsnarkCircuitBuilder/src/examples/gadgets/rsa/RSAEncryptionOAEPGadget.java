@@ -50,15 +50,15 @@ public class RSAEncryptionOAEPGadget extends Gadget {
 			(byte) 0x95, (byte) 0x99, 0x1b, 0x78, 0x52, (byte) 0xb8, 0x55 };
 
 	public RSAEncryptionOAEPGadget(LongElement modulus, Wire[] plainText,
-			Wire[] seed, int rsaKeyLength, String... desc) {
+			Wire[] seed, int rsaKeyBitLength, String... desc) {
 		super(desc);
 
-		if (rsaKeyLength % 8 != 0) {
+		if (rsaKeyBitLength % 8 != 0) {
 			throw new IllegalArgumentException(
 					"RSA Key bit length is assumed to be a multiple of 8");
 		}
 
-		if (plainText.length > rsaKeyLength / 8 - 2 * SHA256_DIGEST_LENGTH - 2) {
+		if (plainText.length > rsaKeyBitLength / 8 - 2 * SHA256_DIGEST_LENGTH - 2) {
 			System.err.println("Message too long");
 			throw new IllegalArgumentException(
 					"Invalid message length for RSA Encryption");
@@ -74,7 +74,7 @@ public class RSAEncryptionOAEPGadget extends Gadget {
 		this.seed = seed;
 		this.plainText = plainText;
 		this.modulus = modulus;
-		this.rsaKeyBitLength = rsaKeyLength;
+		this.rsaKeyBitLength = rsaKeyBitLength;
 		buildCircuit();
 	}
 
@@ -130,10 +130,10 @@ public class RSAEncryptionOAEPGadget extends Gadget {
 		LongElement s = paddedMsg;
 		for (int i = 0; i < 16; i++) {
 			s = s.mul(s);
-			s = new LongIntegerModGadget(s, modulus, false).getRemainder();
+			s = new LongIntegerModGadget(s, modulus, rsaKeyBitLength, false).getRemainder();
 		}
 		s = s.mul(paddedMsg);
-		s = new LongIntegerModGadget(s, modulus, true).getRemainder();
+		s = new LongIntegerModGadget(s, modulus, rsaKeyBitLength, true).getRemainder();
 
 		// return the cipher text as byte array
 		ciphertext = s.getBits(rsaKeyBitLength).packBitsIntoWords(8);
