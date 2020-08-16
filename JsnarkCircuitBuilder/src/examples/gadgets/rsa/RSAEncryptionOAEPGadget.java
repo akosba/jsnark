@@ -20,6 +20,8 @@ import examples.gadgets.math.LongIntegerModGadget;
  * A gadget for RSA encryption according to PKCS#1 v2.2. The gadget assumes a
  * hardcoded public exponent of 0x10001, and uses SHA256 as the hash function
  * for mask generation function (mgf).
+ * This gadget can accept a hardcoded or a variable RSA modulus. See the
+ * corresponding generator example. 
  * 
  * This gadget is costly in comparison with the PKCS v1.5 RSA encryption gadget
  * due to many SHA256 calls during mask generation.

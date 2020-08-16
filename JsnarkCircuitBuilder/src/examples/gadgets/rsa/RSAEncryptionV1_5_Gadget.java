@@ -17,6 +17,8 @@ import examples.gadgets.math.LongIntegerModGadget;
  * A gadget for RSA encryption according to PKCS#1 v1.5. A future version will
  * have the RSA-OAEP method according to PKCS#1 v2.x. The gadget assumes a
  * hardcoded public exponent of 0x10001.
+ * This gadget can accept a hardcoded or a variable RSA modulus. See the
+ * corresponding generator example. 
  * 
  * Implemented according to the standard specs here:
  * https://www.emc.com/collateral/white-

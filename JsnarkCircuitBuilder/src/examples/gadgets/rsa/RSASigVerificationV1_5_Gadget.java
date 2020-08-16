@@ -12,9 +12,10 @@ import examples.gadgets.math.LongIntegerModGadget;
 /**
  * A gadget to check if an RSA signature is valid according to PKCS 1 v1.5 (A
  * gadget based on the latest standard (PSS) will be added in the future).
- * 
  * This gadget assumes SHA256 for the message hash, and a public exponent of
  * 0x10001.
+ * This gadget can accept a hardcoded or a variable RSA modulus. See the
+ * corresponding generator example. 
  * 
  * Implemented according to the standard specs here:
  * https://www.emc.com/collateral/white-
