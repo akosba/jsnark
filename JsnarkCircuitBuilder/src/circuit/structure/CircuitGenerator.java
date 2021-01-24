@@ -173,11 +173,24 @@ public abstract class CircuitGenerator {
 	}
 
 	public Wire makeOutput(Wire wire, String... desc) {
+		
 		Wire outputWire = wire;
-		if (!(wire instanceof VariableWire || wire instanceof VariableBitWire) || inWires.contains(wire)) {
-			wire.packIfNeeded();
+		if(proverWitnessWires.contains(wire)) {
+			// The first case is allowed for usability. In some cases, gadgets provide their witness wires as intermediate outputs, e.g., division gadgets,
+			// and the programmer could choose any of these intermediate outputs to be circuit outputs later.
+			// The drawback of this method is that this will add one constraint for every witness wire that is transformed to be a circuit output.
+			// As the statement size is usually small, this will not lead to issues in practice.
+			// The constraint is just added for separation. Note: prover witness wires are actually variable wires. The following method is used
+			// in order to introduce a different variable.
 			outputWire = makeVariable(wire, desc);
-		} else if (inWires.contains(wire) || proverWitnessWires.contains(wire)) {
+			// If this causes overhead, the programmer can create the wires that are causing the bottleneck
+			// as input wires instead of prover witness wires and avoid calling makeOutput().
+		} else if(inWires.contains(wire)) {
+			System.err.println("Warning: An input wire is redeclared as an output. This leads to an additional unnecessary constraint.");
+			System.err.println("\t->This situation could happen by calling makeOutput() on input wires or in some cases involving multiplication of an input wire by 1 then declaring the result as an output wire.");
+			outputWire = makeVariable(wire, desc);
+		} else if (!(wire instanceof VariableWire || wire instanceof VariableBitWire)) {
+			wire.packIfNeeded();
 			outputWire = makeVariable(wire, desc);
 		} else {
 			wire.packIfNeeded();
