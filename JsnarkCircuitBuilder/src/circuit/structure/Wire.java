@@ -334,6 +334,12 @@ public class Wire {
 		return isEqualTo(generator.createConstantWire(v, desc));
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and w can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isLessThanOrEqual(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
@@ -344,14 +350,48 @@ public class Wire {
 		return bitWires.get(bitwidth);
 	}
 
+	
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and v can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isLessThanOrEqual(long v, int bitwidth, String... desc) {
+		if(v < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(BigInteger.valueOf(v).bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isLessThanOrEqual(generator.createConstantWire(v, desc), bitwidth, desc);
 	}
 
+	
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and b can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isLessThanOrEqual(BigInteger b, int bitwidth, String... desc) {
+		if(b.signum() < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(b.bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isLessThanOrEqual(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and w can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isLessThan(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
@@ -362,15 +402,47 @@ public class Wire {
 		return bitWires.get(bitwidth).invAsBit(desc);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and v can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isLessThan(long v, int bitwidth, String... desc) {
+		if(v < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(BigInteger.valueOf(v).bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isLessThan(generator.createConstantWire(v, desc), bitwidth, desc);
 
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and b can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isLessThan(BigInteger b, int bitwidth, String... desc) {
+		if(b.signum() < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(b.bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isLessThan(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and w can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isGreaterThanOrEqual(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
@@ -381,14 +453,46 @@ public class Wire {
 		return bitWires.get(bitwidth);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and w can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isGreaterThanOrEqual(long v, int bitwidth, String... desc) {
+		if(v < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(BigInteger.valueOf(v).bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isGreaterThanOrEqual(generator.createConstantWire(v, desc), bitwidth, desc);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and b can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isGreaterThanOrEqual(BigInteger b, int bitwidth, String... desc) {
+		if(b.signum() < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(b.bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isGreaterThanOrEqual(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and w can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isGreaterThan(Wire w, int bitwidth, String... desc) {
 		packIfNeeded(desc);
 		w.packIfNeeded(desc);
@@ -399,11 +503,37 @@ public class Wire {
 		return bitWires.get(bitwidth).invAsBit(desc);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and v can fit into bitwidth bits. 
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isGreaterThan(long v, int bitwidth, String... desc) {
+		if(v < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(BigInteger.valueOf(v).bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isGreaterThan(generator.createConstantWire(v, desc), bitwidth, desc);
 	}
 
+	/**
+	 * Note: This method performs unsigned comparison and assumes that the values on this wire and b can fit into bitwidth bits.
+	 * It's the responsibility of the programmer to ensure that this is the case. (The enforcement could be added within the method, but this is not needed for many applications.)
+	 * For example, if any of the wires is an unconstrained witness wire by the prover, restrict bitlength should be called first.
+	 * Existing gadgets that show examples of using comparisons in the case of witnesses are the Mod gadgets in the examples.gadgets.math package.
+	 */
 	public Wire isGreaterThan(BigInteger b, int bitwidth, String... desc) {
+		if(b.signum() < 0) {
+			throw new IllegalArgumentException("This method performs unsigned comparisons only.");
+		} 
+		if(b.bitLength() > bitwidth) {
+			throw new IllegalArgumentException("The constant argument must fit within the given bitwidth. Also, see other comments in the code.");
+		}
+		// Note: the above checks are not sufficient for the correct usage of the method. See the above comments.
 		return isGreaterThan(generator.createConstantWire(b, desc), bitwidth, desc);
 	}
 
