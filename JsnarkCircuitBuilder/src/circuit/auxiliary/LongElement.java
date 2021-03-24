@@ -642,6 +642,12 @@ public class LongElement {
 			i += step;
 		}
 
+		if(group1.size() == 1) {
+			generator.addEqualityAssertion(group1.get(0), group2.get(0),
+					"Equality assertion of long elements | Case 3 | Group Index 0");
+			return;
+		}
+		
 		int numOfGroupedChunks = group1.size();
 
 		// After grouping, subtraction will be needed to compare the grouped
@@ -781,8 +787,7 @@ public class LongElement {
 
 			generator
 					.addEqualityAssertion(w1, w2,
-							"Equality assertion of long elements | case 3 | index "
-									+ j);
+							"Equality assertion of long elements | Case 3 | Group Index " + j);
 
 			prevCarry = currentCarry;
 			if (j != carries.length) {
