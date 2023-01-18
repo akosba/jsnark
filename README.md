@@ -15,11 +15,12 @@ __Updates__:
 - Junit 4
 - BouncyCastle library
 
+#### Ubuntu 14.04
 For Ubuntu 14.04, the following can be done to install the above:
 
 - To install libsnark prerequisites: 
 
-	`$ sudo apt-get install build-essential cmake git libgmp3-dev libprocps3-dev python-markdown libboost-all-dev libssl-dev`
+	`$ sudo apt-get install build-essential pkg-config cmake git libgmp3-dev libprocps3-dev python-markdown libboost-all-dev libssl-dev`
 
 Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next section.
 
@@ -40,6 +41,34 @@ Verify the installed version by `java -version`. In case it is not 1.8 or later,
 - To download BouncyCastle:
 
 	`$ wget https://www.bouncycastle.org/download/bcprov-jdk15on-159.jar`
+	
+#### Ubuntu 16.04
+
+For Ubuntu 16.04, the only difference is to replace `libprocps3-dev` with `libprocps4-dev`.
+
+- To install libsnark prerequisites: 
+
+	`$ sudo apt-get install build-essential pkg-config cmake git libgmp3-dev libprocps4-dev python-markdown libboost-all-dev libssl-dev`
+
+Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next section.
+
+#### Ubuntu 18.04 / Debian 10
+
+For Ubuntu 18.04, the only difference is to replace `libprocps3-dev` with `libprocps-dev`.
+
+- To install libsnark prerequisites: 
+
+	`$ sudo apt-get install build-essential pkg-config cmake git libgmp3-dev libprocps-dev python-markdown libboost-all-dev libssl-dev`
+
+Note: Don't clone libsnark from `https://github.com/scipr-lab/libsnark`. Make sure to use the modified libsnark submodule within the jsnark cloned repo in the next section.
+
+- To install JDK:
+
+	OpenJDK is a good alternative for Oracle JDK, and it's obtainable from almost every Linux distro's official repo.
+
+	To install OpenJDK 11 instead of Oracle JDK 8,
+	
+	`$ sudo apt-get install default-jdk`
 
 ### jsnark Installation Instructions
 
