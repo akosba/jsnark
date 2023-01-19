@@ -216,4 +216,12 @@ public class Util {
 			return newArray;
 		}
 	}
+
+	public static String stringToHex(String inputString){
+		StringBuilder strB = new StringBuilder(inputString.length());
+		for (char ch: inputString.toCharArray()){
+			strB.append(String.format("%x", (int) ch));
+		}
+		return strB.toString();
+	}
 }

@@ -3,6 +3,7 @@
  *******************************************************************************/
 package examples.tests.hash;
 
+import circuit.config.Config;
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -13,6 +14,8 @@ import circuit.eval.CircuitEvaluator;
 import circuit.structure.CircuitGenerator;
 import circuit.structure.Wire;
 import examples.gadgets.hash.SHA256Gadget;
+import java.math.BigInteger;
+
 import java.math.BigInteger;
 
 /**
@@ -224,5 +227,63 @@ public class SHA256_Test extends TestCase {
 
 		}
 
+	}
+
+	@Test
+	public void testCase6() {
+
+		String inputStr = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+		String expectedDigest = "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1";
+
+		// Testing different settings of the bitWidthPerInputElement parameter, when the input is in hexadecimal format.
+		// wordSize = # of hex digits per input wire. 1 hex digit = 4 bits.
+
+		String inputStrInHex = Util.stringToHex(inputStr);
+
+		for (int wordSize = 2; wordSize <= Config.LOG2_FIELD_PRIME / 4 - 3; wordSize+=2) {
+
+			final int numHexDigitsPerInputWire = wordSize;
+
+			CircuitGenerator generator = new CircuitGenerator("SHA2_Test6") {
+
+				Wire[] inputWires;
+				@Override
+				protected void buildCircuit() {
+					inputWires = createInputWireArray((inputStrInHex.length()/numHexDigitsPerInputWire)
+							+ ((inputStrInHex.length()) % numHexDigitsPerInputWire != 0 ? 1 : 0));
+					Wire[] digest = new SHA256Gadget(inputWires, 4*numHexDigitsPerInputWire,
+							inputStrInHex.length()/2, false, true, "")
+							.getOutputWires();
+					makeOutputArray(digest);
+				}
+
+				@Override
+				public void generateSampleInput(CircuitEvaluator e) {
+					for (int i = 0; i < inputWires.length; i++) {
+						BigInteger sum = BigInteger.ZERO;
+						for (int j = i * numHexDigitsPerInputWire; j < (i + 1) * numHexDigitsPerInputWire
+								&& j < inputStrInHex.length(); j+=2) {
+							String substring = inputStrInHex.substring(j,
+									j+2);
+							BigInteger v = new BigInteger(substring, 16);
+							sum = sum.add(v.shiftLeft(((j % numHexDigitsPerInputWire)/2) * 8));
+						}
+						e.setWireValue(inputWires[i], sum);
+					}
+				}
+			};
+
+			generator.generateCircuit();
+			generator.evalCircuit();
+			CircuitEvaluator evaluator = generator.getCircuitEvaluator();
+
+			String outDigest = "";
+			for (Wire w : generator.getOutWires()) {
+				outDigest += Util.padZeros(
+						evaluator.getWireValue(w).toString(16), 8);
+			}
+			assertEquals(expectedDigest, outDigest);
+
+		}
 	}
 }
